@@ -164,11 +164,11 @@ export function ActivityBankSection() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-2xl">{template.emoji}</span>
                       <div className={cn(
-                        "px-2 py-0.5 rounded-full text-xs font-medium",
-                        template.type === 'enrichment' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
-                        template.type === 'connection' && "bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300", 
-                        template.type === 'growth' && "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300",
-                        template.type === 'creative' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
+                        "px-2 py-0.5 rounded-full text-xs font-semibold",
+                        template.type === 'enrichment' && "bg-blue-200 text-blue-800 dark:bg-blue-500/30 dark:text-blue-100",
+                        template.type === 'connection' && "bg-pink-200 text-pink-800 dark:bg-pink-500/30 dark:text-pink-100", 
+                        template.type === 'growth' && "bg-green-200 text-green-800 dark:bg-green-500/30 dark:text-green-100",
+                        template.type === 'creative' && "bg-purple-200 text-purple-800 dark:bg-purple-500/30 dark:text-purple-100"
                       )}>
                         {template.duration}
                       </div>
