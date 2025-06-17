@@ -84,8 +84,8 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
           )}
         </SortableContext>
         
-        {/* Add Activity Button - Only show on hover */}
-        {isHovered && activities.length > 0 && (
+        {/* Add Activity Button - Show on hover for all days */}
+        {isHovered && (
           <button
             onClick={() => onAddActivity(day.date)}
             className={cn(

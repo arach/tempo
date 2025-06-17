@@ -226,6 +226,18 @@ export function TempoCalendar() {
         onClose={() => setIsBankOpen(false)}
         onSelectActivity={handleSelectFromBank}
       />
+      
+      {/* Floating Add Activity Button for Accessibility */}
+      <button
+        onClick={() => {
+          const today = format(new Date(), 'yyyy-MM-dd');
+          handleAddActivity(today);
+        }}
+        className="fixed bottom-6 right-6 h-14 w-14 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group"
+        title="Add Activity to Today"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
     </>
   );
 }
