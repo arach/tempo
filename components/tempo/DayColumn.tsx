@@ -37,7 +37,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
         "bg-gray-50 dark:bg-gray-800/50 h-full transition-all relative overflow-hidden",
         "border-r border-gray-200 dark:border-gray-700 last:border-r-0",
         day.isToday && "bg-blue-50 dark:bg-blue-900/20",
-        isOver && "bg-blue-50 dark:bg-blue-900/30 ring-2 ring-inset ring-blue-500/20"
+        isOver && "bg-blue-100/50 dark:bg-blue-500/10 ring-2 ring-inset ring-blue-500/20"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -77,9 +77,9 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
           {activities.length === 0 && (
             <button
               onClick={() => onAddActivity(day.date)}
-              className="flex flex-col items-center justify-center py-16 text-muted-foreground w-full hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded transition-colors group"
+              className="flex flex-col items-center justify-center py-16 text-muted-foreground w-full hover:bg-gray-100/50 dark:hover:bg-gray-800/30 rounded transition-colors group"
             >
-              <p className="text-[11px] font-light text-gray-400/40 dark:text-gray-600/40 opacity-0 group-hover:opacity-100 transition-opacity">Free as a bird</p>
+              <p className="text-[11px] font-light text-gray-500/50 dark:text-gray-500/30 opacity-0 group-hover:opacity-100 transition-opacity">Free as a bird</p>
             </button>
           )}
         </SortableContext>
