@@ -13,48 +13,50 @@ interface ActivityTemplate {
   duration: string;
   emoji: string;
   description?: string;
+  image?: string;
+  color?: string;
 }
 
 const EXPANDED_ACTIVITY_TEMPLATES: Record<ActivityType, ActivityTemplate[]> = {
   enrichment: [
-    { title: 'Morning Pages', type: 'enrichment', duration: '30 min', emoji: '✍️', description: 'Stream-of-consciousness writing' },
-    { title: 'Read Book', type: 'enrichment', duration: '45 min', emoji: '📖', description: 'Fiction or non-fiction' },
-    { title: 'Learn Language', type: 'enrichment', duration: '30 min', emoji: '🗣️', description: 'Practice vocabulary or conversation' },
-    { title: 'Watch Documentary', type: 'enrichment', duration: '1 hour', emoji: '🎬', description: 'Educational content' },
-    { title: 'Listen to Podcast', type: 'enrichment', duration: '45 min', emoji: '🎧', description: 'Educational or inspiring shows' },
-    { title: 'Practice Instrument', type: 'enrichment', duration: '30 min', emoji: '🎸', description: 'Music practice session' },
-    { title: 'Online Course', type: 'enrichment', duration: '1 hour', emoji: '💻', description: 'Skill development' },
-    { title: 'Museum Visit', type: 'enrichment', duration: '2 hours', emoji: '🏛️', description: 'Art or history exploration' },
+    { title: 'Morning Pages', type: 'enrichment', duration: '30 min', emoji: '✍️', description: 'Stream-of-consciousness writing', color: 'from-blue-400 to-blue-600' },
+    { title: 'Read Book', type: 'enrichment', duration: '45 min', emoji: '📖', description: 'Fiction or non-fiction', color: 'from-blue-500 to-indigo-600' },
+    { title: 'Learn Language', type: 'enrichment', duration: '30 min', emoji: '🗣️', description: 'Practice vocabulary or conversation', color: 'from-cyan-400 to-blue-500' },
+    { title: 'Watch Documentary', type: 'enrichment', duration: '1 hour', emoji: '🎬', description: 'Educational content', color: 'from-blue-600 to-purple-600' },
+    { title: 'Listen to Podcast', type: 'enrichment', duration: '45 min', emoji: '🎧', description: 'Educational or inspiring shows', color: 'from-indigo-400 to-blue-500' },
+    { title: 'Practice Instrument', type: 'enrichment', duration: '30 min', emoji: '🎸', description: 'Music practice session', color: 'from-blue-500 to-purple-500' },
+    { title: 'Online Course', type: 'enrichment', duration: '1 hour', emoji: '💻', description: 'Skill development', color: 'from-cyan-500 to-blue-600' },
+    { title: 'Museum Visit', type: 'enrichment', duration: '2 hours', emoji: '🏛️', description: 'Art or history exploration', color: 'from-blue-400 to-indigo-500' },
   ],
   connection: [
-    { title: 'Call Family', type: 'connection', duration: '30 min', emoji: '📞', description: 'Check in with loved ones' },
-    { title: 'Coffee with Friend', type: 'connection', duration: '1 hour', emoji: '☕', description: 'Catch up over drinks' },
-    { title: 'Write Thank You Note', type: 'connection', duration: '15 min', emoji: '💌', description: 'Express gratitude' },
-    { title: 'Game Night', type: 'connection', duration: '2 hours', emoji: '🎲', description: 'Board games with friends' },
-    { title: 'Dinner Date', type: 'connection', duration: '2 hours', emoji: '🍽️', description: 'Quality time over meals' },
-    { title: 'Video Call Catch-up', type: 'connection', duration: '45 min', emoji: '📹', description: 'Remote connection' },
-    { title: 'Community Event', type: 'connection', duration: '2 hours', emoji: '🎪', description: 'Local gathering or meetup' },
-    { title: 'Team Building', type: 'connection', duration: '1.5 hours', emoji: '🤝', description: 'Workplace bonding' },
+    { title: 'Call Family', type: 'connection', duration: '30 min', emoji: '📞', description: 'Check in with loved ones', color: 'from-pink-400 to-rose-500' },
+    { title: 'Coffee with Friend', type: 'connection', duration: '1 hour', emoji: '☕', description: 'Catch up over drinks', color: 'from-rose-400 to-pink-600' },
+    { title: 'Write Thank You Note', type: 'connection', duration: '15 min', emoji: '💌', description: 'Express gratitude', color: 'from-pink-500 to-rose-600' },
+    { title: 'Game Night', type: 'connection', duration: '2 hours', emoji: '🎲', description: 'Board games with friends', color: 'from-pink-400 to-purple-500' },
+    { title: 'Dinner Date', type: 'connection', duration: '2 hours', emoji: '🍽️', description: 'Quality time over meals', color: 'from-rose-500 to-pink-600' },
+    { title: 'Video Call Catch-up', type: 'connection', duration: '45 min', emoji: '📹', description: 'Remote connection', color: 'from-pink-600 to-rose-700' },
+    { title: 'Community Event', type: 'connection', duration: '2 hours', emoji: '🎪', description: 'Local gathering or meetup', color: 'from-fuchsia-400 to-pink-500' },
+    { title: 'Team Building', type: 'connection', duration: '1.5 hours', emoji: '🤝', description: 'Workplace bonding', color: 'from-pink-500 to-purple-600' },
   ],
   growth: [
-    { title: 'Morning Meditation', type: 'growth', duration: '15 min', emoji: '🧘', description: 'Mindfulness practice' },
-    { title: 'Journaling', type: 'growth', duration: '30 min', emoji: '📔', description: 'Reflect and plan' },
-    { title: 'Nature Walk', type: 'growth', duration: '45 min', emoji: '🌳', description: 'Peaceful outdoor time' },
-    { title: 'Yoga Session', type: 'growth', duration: '1 hour', emoji: '🧘‍♀️', description: 'Physical and mental wellness' },
-    { title: 'Breathwork', type: 'growth', duration: '15 min', emoji: '🌬️', description: 'Breathing exercises' },
-    { title: 'Gratitude Practice', type: 'growth', duration: '15 min', emoji: '🙏', description: 'Appreciate the good' },
-    { title: 'Therapy Session', type: 'growth', duration: '1 hour', emoji: '💭', description: 'Mental health care' },
-    { title: 'Life Planning', type: 'growth', duration: '45 min', emoji: '🎯', description: 'Goal setting and review' },
+    { title: 'Morning Meditation', type: 'growth', duration: '15 min', emoji: '🧘', description: 'Mindfulness practice', color: 'from-green-400 to-emerald-500' },
+    { title: 'Journaling', type: 'growth', duration: '30 min', emoji: '📔', description: 'Reflect and plan', color: 'from-emerald-400 to-green-600' },
+    { title: 'Nature Walk', type: 'growth', duration: '45 min', emoji: '🌳', description: 'Peaceful outdoor time', color: 'from-green-500 to-teal-600' },
+    { title: 'Yoga Session', type: 'growth', duration: '1 hour', emoji: '🧘‍♀️', description: 'Physical and mental wellness', color: 'from-teal-400 to-green-500' },
+    { title: 'Breathwork', type: 'growth', duration: '15 min', emoji: '🌬️', description: 'Breathing exercises', color: 'from-green-400 to-teal-500' },
+    { title: 'Gratitude Practice', type: 'growth', duration: '15 min', emoji: '🙏', description: 'Appreciate the good', color: 'from-emerald-500 to-green-600' },
+    { title: 'Therapy Session', type: 'growth', duration: '1 hour', emoji: '💭', description: 'Mental health care', color: 'from-teal-500 to-emerald-600' },
+    { title: 'Life Planning', type: 'growth', duration: '45 min', emoji: '🎯', description: 'Goal setting and review', color: 'from-green-600 to-emerald-700' },
   ],
   creative: [
-    { title: 'Sketch or Draw', type: 'creative', duration: '45 min', emoji: '✏️', description: 'Visual art creation' },
-    { title: 'Write Poetry', type: 'creative', duration: '30 min', emoji: '🖋️', description: 'Express through verse' },
-    { title: 'Photography Walk', type: 'creative', duration: '1 hour', emoji: '📸', description: 'Capture moments' },
-    { title: 'Paint or Watercolor', type: 'creative', duration: '1.5 hours', emoji: '🎨', description: 'Color and canvas' },
-    { title: 'Creative Writing', type: 'creative', duration: '1 hour', emoji: '📝', description: 'Stories and ideas' },
-    { title: 'Make Music', type: 'creative', duration: '1 hour', emoji: '🎵', description: 'Compose or play' },
-    { title: 'Crafting Project', type: 'creative', duration: '2 hours', emoji: '🧵', description: 'Hands-on creation' },
-    { title: 'Design Work', type: 'creative', duration: '1.5 hours', emoji: '🎭', description: 'Visual or UX design' },
+    { title: 'Sketch or Draw', type: 'creative', duration: '45 min', emoji: '✏️', description: 'Visual art creation', color: 'from-purple-400 to-violet-500' },
+    { title: 'Write Poetry', type: 'creative', duration: '30 min', emoji: '🖋️', description: 'Express through verse', color: 'from-violet-400 to-purple-600' },
+    { title: 'Photography Walk', type: 'creative', duration: '1 hour', emoji: '📸', description: 'Capture moments', color: 'from-purple-500 to-indigo-600' },
+    { title: 'Paint or Watercolor', type: 'creative', duration: '1.5 hours', emoji: '🎨', description: 'Color and canvas', color: 'from-fuchsia-400 to-purple-500' },
+    { title: 'Creative Writing', type: 'creative', duration: '1 hour', emoji: '📝', description: 'Stories and ideas', color: 'from-purple-600 to-violet-700' },
+    { title: 'Make Music', type: 'creative', duration: '1 hour', emoji: '🎵', description: 'Compose or play', color: 'from-violet-500 to-purple-600' },
+    { title: 'Crafting Project', type: 'creative', duration: '2 hours', emoji: '🧵', description: 'Hands-on creation', color: 'from-purple-400 to-pink-500' },
+    { title: 'Design Work', type: 'creative', duration: '1.5 hours', emoji: '🎭', description: 'Visual or UX design', color: 'from-indigo-500 to-purple-600' },
   ],
 };
 
@@ -139,40 +141,75 @@ export function ActivityBankSection() {
         </div>
       </div>
 
-      {/* Activity List */}
-      <div className="max-h-96 overflow-y-auto">
-        <div className="p-2">
+      {/* Activity Cards Grid */}
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {searchFilteredTemplates.map((template, index) => (
             <button
               key={index}
               onClick={() => handleAddTemplate(template)}
-              className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group"
+              className="group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left"
             >
-              <div className="flex items-start gap-3">
-                <span className="text-lg mt-0.5">{template.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {/* Gradient Background */}
+              <div className={cn(
+                "absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity",
+                template.color
+              )} />
+              
+              {/* Content */}
+              <div className="relative p-4">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">{template.emoji}</span>
+                      <div className={cn(
+                        "px-2 py-0.5 rounded-full text-xs font-medium",
+                        template.type === 'enrichment' && "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+                        template.type === 'connection' && "bg-pink-100 text-pink-700 dark:bg-pink-500/20 dark:text-pink-300", 
+                        template.type === 'growth' && "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300",
+                        template.type === 'creative' && "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
+                      )}>
+                        {template.duration}
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                       {template.title}
-                    </h4>
-                    <Plus className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100" />
+                    </h3>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {template.description} • {template.duration}
-                  </p>
+                  <Plus className="h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-all opacity-0 group-hover:opacity-100 transform group-hover:scale-110" />
+                </div>
+
+                {/* Description */}
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {template.description}
+                </p>
+
+                {/* Category Badge */}
+                <div className="mt-3 flex items-center justify-between">
+                  <span className={cn(
+                    "text-xs font-medium px-2 py-1 rounded-lg",
+                    template.type === 'enrichment' && "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
+                    template.type === 'connection' && "bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400",
+                    template.type === 'growth' && "bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400",
+                    template.type === 'creative' && "bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400"
+                  )}>
+                    {ACTIVITY_TYPES[template.type].label}
+                  </span>
                 </div>
               </div>
             </button>
           ))}
-          
-          {searchFilteredTemplates.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                No activities found matching your search.
-              </p>
-            </div>
-          )}
         </div>
+        
+        {searchFilteredTemplates.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-4xl mb-3">🔍</div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No activities found matching your search.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
