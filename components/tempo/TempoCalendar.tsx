@@ -15,8 +15,9 @@ import {
 import { format, startOfWeek, addDays } from 'date-fns';
 import { DayColumn } from './DayColumn';
 import { ActivityEditor } from './ActivityEditor';
+import { ActivityBank } from './ActivityBank';
 import { ActivityBlock } from './ActivityBlock';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTempoStorage } from '@/hooks/useTempoStorage';
 import type { TempoActivity } from '@/lib/types';
@@ -24,6 +25,7 @@ import type { TempoActivity } from '@/lib/types';
 export function TempoCalendar() {
   const { activities, moveActivity, addActivity, deleteActivity, updateActivity } = useTempoStorage();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isBankOpen, setIsBankOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -137,6 +139,18 @@ export function TempoCalendar() {
     }
   };
 
+  const handleSelectFromBank = (activityData: Omit<TempoActivity, 'id'>) => {
+    // Default to today if no date is selected
+    const targetDate = selectedDate || format(new Date(), 'yyyy-MM-dd');
+    
+    const newActivity: TempoActivity = {
+      ...activityData,
+      id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    };
+    
+    addActivity(targetDate, newActivity);
+  };
+
   return (
     <>
       <DndContext 
@@ -146,16 +160,25 @@ export function TempoCalendar() {
         onDragEnd={handleDragEnd}
       >
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden relative">
-          <button
-            onClick={() => {
-              const today = format(new Date(), 'yyyy-MM-dd');
-              handleAddActivity(today);
-            }}
-            className="absolute top-3 right-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-10"
-            title="Add Activity"
-          >
-            <Plus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          </button>
+          <div className="absolute top-3 right-3 flex gap-2 z-10">
+            <button
+              onClick={() => setIsBankOpen(true)}
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Activity Inspiration"
+            >
+              <Sparkles className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
+              onClick={() => {
+                const today = format(new Date(), 'yyyy-MM-dd');
+                handleAddActivity(today);
+              }}
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Add Activity"
+            >
+              <Plus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-7 gap-0">
             {weekDays.map(day => (
               <DayColumn 
@@ -196,6 +219,12 @@ export function TempoCalendar() {
         onSave={handleSaveActivity}
         defaultDay={selectedDate || undefined}
         editingActivity={editingActivity || undefined}
+      />
+      
+      <ActivityBank
+        isOpen={isBankOpen}
+        onClose={() => setIsBankOpen(false)}
+        onSelectActivity={handleSelectFromBank}
       />
     </>
   );
