@@ -191,7 +191,7 @@ export function TempoCalendar() {
         onDragEnd={handleDragEnd}
       >
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden relative">
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-0">
             {weekDays.map(day => (
               <DayColumn 
                 key={day.date} 
