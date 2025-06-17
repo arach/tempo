@@ -153,6 +153,37 @@ export function TempoCalendar() {
 
   return (
     <>
+      {/* Add Activity Section */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+            Quick Actions
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Add activities to your week
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsBankOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-purple-100 dark:bg-purple-500/10 hover:bg-purple-200 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-medium transition-all hover:scale-105"
+          >
+            <Sparkles className="h-4 w-4" />
+            Browse Templates
+          </button>
+          <button
+            onClick={() => {
+              const today = format(new Date(), 'yyyy-MM-dd');
+              handleAddActivity(today);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-medium transition-all hover:scale-105"
+          >
+            <Plus className="h-4 w-4" />
+            Add Activity
+          </button>
+        </div>
+      </div>
+
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter} 
@@ -160,25 +191,6 @@ export function TempoCalendar() {
         onDragEnd={handleDragEnd}
       >
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden relative">
-          <div className="absolute top-3 right-3 flex gap-2 z-10">
-            <button
-              onClick={() => setIsBankOpen(true)}
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="Activity Inspiration"
-            >
-              <Sparkles className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-            </button>
-            <button
-              onClick={() => {
-                const today = format(new Date(), 'yyyy-MM-dd');
-                handleAddActivity(today);
-              }}
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="Add Activity"
-            >
-              <Plus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-            </button>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-7 gap-0">
             {weekDays.map(day => (
               <DayColumn 

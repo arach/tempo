@@ -1,4 +1,5 @@
 import { TempoCalendar } from '@/components/tempo/TempoCalendar';
+import { ActivityBankSection } from '@/components/tempo/ActivityBankSection';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -19,7 +20,14 @@ export default function TempoPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">Plan meaningful activities without the pressure of exact times</p>
         </header>
         
-        <TempoCalendar />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <TempoCalendar />
+          </div>
+          <div className="lg:col-span-1">
+            <ActivityBankSection />
+          </div>
+        </div>
       </div>
     </div>
   );
