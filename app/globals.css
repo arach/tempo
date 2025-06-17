@@ -1077,6 +1077,22 @@ input:focus, select:focus {
 .dark .dark\:text-green-100 { color: rgb(220 252 231); }
 .dark .dark\:text-purple-100 { color: rgb(243 232 255); }
 
+/* Improved Add Activity button visibility */
+.bg-white\/90 { background-color: rgb(255 255 255 / 0.9); }
+.bg-gray-800\/90 { background-color: rgb(31 41 55 / 0.9); }
+.bg-gray-700\/40 { background-color: rgb(55 65 81 / 0.4); }
+.text-gray-400\/60 { color: rgb(156 163 175 / 0.6); }
+.border-gray-600 { border-color: rgb(75 85 99); }
+.hover\:border-gray-500:hover { border-color: rgb(107 114 128); }
+.dark .dark\:bg-gray-800\/90 { background-color: rgb(31 41 55 / 0.9); }
+.dark .dark\:bg-gray-700\/40 { background-color: rgb(55 65 81 / 0.4); }
+.dark .dark\:hover\:bg-gray-700:hover { background-color: rgb(55 65 81); }
+.dark .dark\:border-gray-600 { border-color: rgb(75 85 99); }
+.dark .dark\:hover\:border-gray-500:hover { border-color: rgb(107 114 128); }
+.dark .dark\:text-gray-300 { color: rgb(209 213 219); }
+.dark .dark\:text-gray-400\/60 { color: rgb(156 163 175 / 0.6); }
+.dark .dark\:group-hover\:text-gray-100:hover { color: rgb(243 244 246); }
+
 /* Responsive utilities */
 .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .min-h-\[200px\] { min-height: 200px; }

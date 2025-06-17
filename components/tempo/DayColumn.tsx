@@ -77,9 +77,9 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
           {activities.length === 0 && (
             <button
               onClick={() => onAddActivity(day.date)}
-              className="flex flex-col items-center justify-center py-16 text-muted-foreground w-full hover:bg-gray-100/50 dark:hover:bg-gray-800/30 rounded transition-colors group"
+              className="flex flex-col items-center justify-center py-16 text-muted-foreground w-full hover:bg-gray-100/50 dark:hover:bg-gray-700/40 rounded transition-colors group"
             >
-              <p className="text-[11px] font-light text-gray-500/50 dark:text-gray-500/30 opacity-0 group-hover:opacity-100 transition-opacity">Free as a bird</p>
+              <p className="text-[11px] font-light text-gray-500/50 dark:text-gray-400/60 opacity-0 group-hover:opacity-100 transition-opacity">Free as a bird</p>
             </button>
           )}
         </SortableContext>
@@ -90,14 +90,14 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
             onClick={() => onAddActivity(day.date)}
             className={cn(
               "absolute bottom-4 left-4 right-4 py-2.5 px-3 rounded border border-dashed transition-all group",
-              "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
-              "bg-white/80 dark:bg-gray-900/80 hover:bg-gray-50 dark:hover:bg-gray-800",
+              "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500",
+              "bg-white/90 dark:bg-gray-800/90 hover:bg-gray-50 dark:hover:bg-gray-700",
               "flex items-center justify-center gap-2",
               "backdrop-blur-sm shadow-sm"
             )}
           >
-            <Plus className="h-3 w-3 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
-            <span className="text-[12px] font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+            <Plus className="h-3 w-3 text-gray-500 dark:text-gray-300 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors" />
+            <span className="text-[12px] font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-700 dark:group-hover:text-gray-100 transition-colors">
               Add Activity
             </span>
           </button>
