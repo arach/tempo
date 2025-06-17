@@ -20,13 +20,10 @@ export default function TempoPage() {
           <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">Plan meaningful activities without the pressure of exact times</p>
         </header>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <TempoCalendar />
-          </div>
-          <div className="lg:col-span-1">
-            <ActivityBankSection />
-          </div>
+        <div className="space-y-12">
+          <TempoCalendar />
+          
+          <ActivityBankSection />
         </div>
       </div>
     </div>

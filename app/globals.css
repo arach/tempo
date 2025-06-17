@@ -951,10 +951,7 @@ input:focus, select:focus {
 .justify-between { justify-content: space-between; }
 
 /* Activity Bank Section utilities */
-.lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.lg\:col-span-2 { grid-column: span 2 / span 2; }
-.lg\:col-span-1 { grid-column: span 1 / span 1; }
-.gap-8 { gap: 2rem; }
+.space-y-12 > * + * { margin-top: 3rem; }
 .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
 .mb-2 { margin-bottom: 0.5rem; }
 .space-y-3 > * + * { margin-top: 0.75rem; }
