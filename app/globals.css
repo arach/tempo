@@ -72,6 +72,15 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  /* Prevent flash of unstyled content during theme transitions */
+  color-scheme: light dark;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -79,6 +88,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'rlig' 1, 'calt' 1;
+  /* Smooth theme transitions */
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 html.dark body {

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Test</title>
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #000000;
+        }
+        
+        .dark {
+            --background: #000000;
+            --foreground: #ffffff;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--foreground);
+            transition: background-color 0.2s ease, color 0.2s ease;
+            font-family: system-ui, sans-serif;
+            padding: 2rem;
+        }
+        
+        button {
+            background: var(--foreground);
+            color: var(--background);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        (function() {
+          function getThemePreference() {
+            const saved = localStorage.getItem('tempo-theme');
+            if (saved && ['light', 'dark', 'system'].includes(saved)) {
+              return saved;
+            }
+            return 'system';
+          }
+
+          function getResolvedTheme(theme) {
+            if (theme === 'system') {
+              return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            return theme;
+          }
+
+          function applyTheme() {
+            const theme = getThemePreference();
+            const resolvedTheme = getResolvedTheme(theme);
+            
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(resolvedTheme);
+            
+            document.documentElement.setAttribute('data-theme-applied', 'true');
+          }
+
+          applyTheme();
+
+          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+          mediaQuery.addEventListener('change', function() {
+            const currentTheme = getThemePreference();
+            if (currentTheme === 'system') {
+              applyTheme();
+            }
+          });
+        })();
+    </script>
+    
+    <h1>Theme Persistence Test</h1>
+    <p>Current theme: <span id="current-theme">loading...</span></p>
+    <p>Resolved theme: <span id="resolved-theme">loading...</span></p>
+    
+    <button onclick="setTheme('light')">Light</button>
+    <button onclick="setTheme('dark')">Dark</button>
+    <button onclick="setTheme('system')">System</button>
+    
+    <script>
+        function setTheme(theme) {
+            localStorage.setItem('tempo-theme', theme);
+            location.reload();
+        }
+        
+        function updateDisplay() {
+            const saved = localStorage.getItem('tempo-theme') || 'system';
+            const resolved = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            
+            document.getElementById('current-theme').textContent = saved;
+            document.getElementById('resolved-theme').textContent = resolved;
+        }
+        
+        updateDisplay();
+    </script>
+</body>
+</html>
