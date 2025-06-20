@@ -41,6 +41,5 @@ export function ThemeScript() {
 })();
 `;
 
-  // eslint-disable-next-line react/no-danger
   return <script dangerouslySetInnerHTML={{ __html: codeToRunOnClient }} />;
 }
