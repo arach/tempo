@@ -19,8 +19,9 @@ import {
 } from '@dnd-kit/sortable';
 import { ActivityBlock } from './ActivityBlock';
 import { ActivityEditor } from './ActivityEditor';
-import { Plus, Save, ArrowLeft, Sparkles, Edit3 } from 'lucide-react';
+import { Plus, Save, ArrowLeft, Sparkles, Edit3, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { TempoActivity, DayTemplate as DayTemplateType } from '@/lib/types';
 
 interface DayTemplateProps {
@@ -37,6 +38,10 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeActivity, setActiveActivity] = useState<TempoActivity | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
+  const [tempName, setTempName] = useState('');
+  const [tempDescription, setTempDescription] = useState('');
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -115,7 +120,10 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
 
   const handleSaveTemplate = () => {
     if (!name.trim()) {
-      alert('Please give your day template a name');
+      // Open naming modal instead of alert
+      setTempName('');
+      setTempDescription(description.trim());
+      setIsNamingModalOpen(true);
       return;
     }
 
@@ -125,6 +133,45 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
       activities
     });
   };
+
+  const handleModalSave = () => {
+    if (!tempName.trim()) {
+      return; // Don't save without a name
+    }
+
+    setName(tempName.trim());
+    setDescription(tempDescription.trim());
+    setIsNamingModalOpen(false);
+
+    onSave({
+      name: tempName.trim(),
+      description: tempDescription.trim() || undefined,
+      activities
+    });
+  };
+
+  const handleNameClick = () => {
+    if (activities.length >= 2) {
+      setIsEditingName(true);
+    }
+  };
+
+  const handleNameSave = () => {
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNameSave();
+    }
+    if (e.key === 'Escape') {
+      setIsEditingName(false);
+    }
+  };
+
+  // Show subtle naming hints when there are 2+ activities
+  const showNamingHints = activities.length >= 2;
+  const hasEnoughActivitiesForNaming = activities.length >= 3;
 
 
   return (
@@ -142,15 +189,52 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
           
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                {name.trim() ? name : 'Create Day Template'}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                {name.trim() 
-                  ? (description || 'Your custom day template') 
-                  : 'Design your ideal day by adding meaningful activities'
-                }
-              </p>
+              {isEditingName ? (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onBlur={handleNameSave}
+                    onKeyDown={handleNameKeyDown}
+                    placeholder="Name your day template..."
+                    className="text-4xl font-bold w-full bg-transparent border-b-2 border-purple-300 dark:border-purple-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 pb-1"
+                    autoFocus
+                  />
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    onBlur={handleNameSave}
+                    onKeyDown={handleNameKeyDown}
+                    placeholder="Add a brief description (optional)..."
+                    className="text-lg w-full bg-transparent border-b border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 pb-1"
+                  />
+                </div>
+              ) : (
+                <div 
+                  onClick={handleNameClick}
+                  className={`${showNamingHints ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-lg p-2 -m-2 transition-colors' : ''}`}
+                >
+                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+                    {name.trim() ? name : 'Create Day Template'}
+                    {showNamingHints && !name.trim() && (
+                      <span className="text-sm font-normal text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                        <Edit3 className="w-4 h-4" />
+                        click to name
+                      </span>
+                    )}
+                  </h1>
+                  <p className="text-lg text-gray-600 dark:text-gray-400">
+                    {name.trim() 
+                      ? (description || 'Your custom day template') 
+                      : showNamingHints 
+                        ? 'Design your ideal day by adding meaningful activities • You can name this template now'
+                        : 'Design your ideal day by adding meaningful activities'
+                    }
+                  </p>
+                </div>
+              )}
             </div>
             
             <div className="flex gap-3">
@@ -255,48 +339,14 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
                   </DragOverlay>
                 </DndContext>
 
-                {/* Animated Name & Description Section */}
-                <div className="animate-fade-in-up">
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 rounded-xl p-6 border border-purple-200 dark:border-purple-800/50">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                      <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                        Name Your Creation
-                      </h3>
-                    </div>
-                    <p className="text-sm text-purple-700 dark:text-purple-300 mb-4">
-                      Give this day template a memorable name so you can easily find and use it later.
+                {/* Subtle suggestion after 3+ activities */}
+                {hasEnoughActivitiesForNaming && !name.trim() && (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Looking good! You can name this template by clicking the header above.
                     </p>
-                    
-                    <div className="space-y-4">
-                      <div className="relative group">
-                        <input
-                          type="text"
-                          placeholder="Name this template (e.g., 'Productive Monday', 'Relaxing Sunday')"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="text-xl font-semibold w-full px-4 py-3 rounded-lg border-2 border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-500/10 dark:focus:ring-purple-400/10"
-                        />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-60 transition-opacity">
-                          <Edit3 className="w-5 h-5 text-purple-500 dark:text-purple-400" />
-                        </div>
-                      </div>
-                      
-                      <div className="relative group">
-                        <textarea
-                          placeholder="Add a brief description of when and why you'd use this template (optional)"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          className="text-sm w-full px-4 py-3 pr-12 rounded-lg border border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 placeholder-gray-400 dark:placeholder-gray-500 resize-none transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-600 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-500/10 dark:focus:ring-purple-400/10"
-                          rows={2}
-                        />
-                        <div className="absolute right-3 top-3 opacity-0 group-hover:opacity-60 transition-opacity duration-200 pointer-events-none">
-                          <Edit3 className="w-4 h-4 text-purple-500 dark:text-purple-400" />
-                        </div>
-                      </div>
-                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
@@ -312,6 +362,68 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
         onSave={handleSaveActivity}
         editingActivity={editingActivity || undefined}
       />
+
+      {/* Naming Modal */}
+      <Dialog open={isNamingModalOpen} onOpenChange={setIsNamingModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              Name Your Day Template
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Give your day template a memorable name so you can easily find and use it later.
+            </p>
+            
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  placeholder="e.g., 'Productive Monday', 'Relaxing Sunday'"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && tempName.trim()) {
+                      handleModalSave();
+                    }
+                  }}
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <textarea
+                  placeholder="Add a brief description (optional)"
+                  value={tempDescription}
+                  onChange={(e) => setTempDescription(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 placeholder-gray-400 dark:placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent"
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsNamingModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleModalSave}
+                disabled={!tempName.trim()}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Template
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
