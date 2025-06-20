@@ -1,0 +1,1 @@
+ALTER TABLE `day_templates` DROP COLUMN `category`;

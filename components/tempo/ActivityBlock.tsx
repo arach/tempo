@@ -26,9 +26,16 @@ interface ActivityBlockProps {
   date: string;
   onEdit?: (activity: TempoActivity) => void;
   onDelete?: (activityId: string) => void;
+  isDragOverlay?: boolean;
+  disableSorting?: boolean;
 }
 
-export function ActivityBlock({ activity, date, onEdit, onDelete }: ActivityBlockProps) {
+export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
+  const sortable = useSortable({ 
+    id: date === 'template' ? activity.id : `${date}:${activity.id}`,
+    disabled: isDragOverlay || disableSorting
+  });
+
   const {
     attributes,
     listeners,
@@ -36,9 +43,9 @@ export function ActivityBlock({ activity, date, onEdit, onDelete }: ActivityBloc
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: `${date}:${activity.id}` });
+  } = sortable;
 
-  const style = {
+  const style = disableSorting ? {} : {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
@@ -47,14 +54,15 @@ export function ActivityBlock({ activity, date, onEdit, onDelete }: ActivityBloc
   const Icon = iconMap[activity.type];
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={disableSorting ? undefined : setNodeRef} style={style} {...(disableSorting ? {} : attributes)}>
       <div 
         className={cn(
-          'group relative cursor-grab active:cursor-grabbing px-4 py-3.5 rounded border transition-all hover:shadow-sm hover:scale-[1.005] hover:-translate-y-px',
+          'group relative px-4 py-3.5 rounded border transition-all hover:shadow-sm',
+          !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.005] hover:-translate-y-px',
           colorMap[activity.type],
           isDragging && 'opacity-50'
         )}
-        {...listeners}
+        {...(disableSorting ? {} : listeners)}
       >
         {/* Action buttons - only visible on hover */}
         <div 

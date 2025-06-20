@@ -28,7 +28,7 @@ export function ActivityEditor({
     if (editingActivity) {
       setTitle(editingActivity.title);
       setType(editingActivity.type);
-      setDuration(editingActivity.duration);
+      setDuration(editingActivity.duration || '30 min');
     }
   }, [editingActivity]);
 

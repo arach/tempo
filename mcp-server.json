@@ -1,0 +1,278 @@
+{
+  "name": "tempo-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Tempo life enrichment activity manager",
+  "server": {
+    "name": "Tempo MCP Server",
+    "version": "1.0.0"
+  },
+  "tools": [
+    {
+      "name": "get_activities",
+      "description": "Retrieve activities for a specific date or date range",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Specific date in YYYY-MM-DD format"
+          },
+          "startDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start date for range query in YYYY-MM-DD format"
+          },
+          "endDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End date for range query in YYYY-MM-DD format"
+          }
+        }
+      }
+    },
+    {
+      "name": "create_activity",
+      "description": "Create a new activity for a specific date",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Date in YYYY-MM-DD format"
+          },
+          "activity": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Activity title"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["enrichment", "connection", "growth", "creative"],
+                "description": "Activity type"
+              },
+              "description": {
+                "type": "string",
+                "description": "Optional activity description"
+              },
+              "duration": {
+                "type": "string",
+                "description": "Human-readable duration (e.g., '30 min', '1 hour')"
+              }
+            },
+            "required": ["title", "type"]
+          }
+        },
+        "required": ["date", "activity"]
+      }
+    },
+    {
+      "name": "update_activity",
+      "description": "Update an existing activity",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Date in YYYY-MM-DD format"
+          },
+          "activityId": {
+            "type": "string",
+            "description": "Activity ID to update"
+          },
+          "updates": {
+            "type": "object",
+            "properties": {
+              "title": {"type": "string"},
+              "type": {"type": "string", "enum": ["enrichment", "connection", "growth", "creative"]},
+              "description": {"type": "string"},
+              "duration": {"type": "string"}
+            }
+          }
+        },
+        "required": ["date", "activityId", "updates"]
+      }
+    },
+    {
+      "name": "delete_activity",
+      "description": "Delete an activity",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Date in YYYY-MM-DD format"
+          },
+          "activityId": {
+            "type": "string",
+            "description": "Activity ID to delete"
+          }
+        },
+        "required": ["date", "activityId"]
+      }
+    },
+    {
+      "name": "get_day_templates",
+      "description": "Retrieve day templates with optional filtering",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Filter by category"
+          },
+          "search": {
+            "type": "string",
+            "description": "Search in name and description"
+          }
+        }
+      }
+    },
+    {
+      "name": "create_day_template",
+      "description": "Create a new day template",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Template description"
+          },
+          "category": {
+            "type": "string",
+            "description": "Template category"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {"type": "string"},
+                "type": {"type": "string", "enum": ["enrichment", "connection", "growth", "creative"]},
+                "description": {"type": "string"},
+                "duration": {"type": "string"}
+              },
+              "required": ["title", "type"]
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        },
+        "required": ["name", "activities"]
+      }
+    },
+    {
+      "name": "apply_day_template",
+      "description": "Apply a day template to a specific date",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "description": "Template ID to apply"
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Target date in YYYY-MM-DD format"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to overwrite existing activities"
+          }
+        },
+        "required": ["templateId", "date"]
+      }
+    },
+    {
+      "name": "delete_day_template",
+      "description": "Delete a day template",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Template ID to delete"
+          }
+        },
+        "required": ["id"]
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "tempo://activities/{date}",
+      "name": "Daily Activities",
+      "description": "Activities for a specific date",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "tempo://templates",
+      "name": "Day Templates",
+      "description": "Collection of day templates",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "tempo://week/{startDate}",
+      "name": "Weekly View", 
+      "description": "Activities for a week starting from date",
+      "mimeType": "application/json"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "create_meaningful_day",
+      "description": "Help create a meaningful day plan based on user preferences",
+      "arguments": [
+        {
+          "name": "focus_area",
+          "description": "Primary focus area (creative, productive, restful, social)",
+          "required": true
+        },
+        {
+          "name": "available_time",
+          "description": "Available time slots or general availability",
+          "required": false
+        },
+        {
+          "name": "energy_level",
+          "description": "Expected energy level (high, medium, low)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "suggest_activities",
+      "description": "Suggest activities based on activity type and context",
+      "arguments": [
+        {
+          "name": "activity_type",
+          "description": "Type of activity (enrichment, connection, growth, creative)",
+          "required": true
+        },
+        {
+          "name": "duration",
+          "description": "Preferred duration",
+          "required": false
+        },
+        {
+          "name": "context",
+          "description": "Additional context or preferences",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

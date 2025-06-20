@@ -24,6 +24,16 @@ export interface TempoTemplate {
   createdAt: string;
 }
 
+export interface DayTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  activities: TempoActivity[];
+  createdAt: string;
+  updatedAt: string;
+  tags?: string[];
+}
+
 export type TempoView = 'day' | 'week' | 'month' | 'year';
 
 // Activity type configuration

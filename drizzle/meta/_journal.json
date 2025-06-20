@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1750440232468,
+      "tag": "0000_last_silver_fox",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1750447470180,
+      "tag": "0001_daily_stick",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1750453961239,
+      "tag": "0002_smooth_rictor",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "tempo-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Tempo life enrichment activity manager",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "tempo-mcp-server": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^11.10.0",
+    "drizzle-orm": "^0.44.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.0.0",
+    "typescript": "^5"
+  }
+}

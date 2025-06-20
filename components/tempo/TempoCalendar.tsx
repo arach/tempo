@@ -16,16 +16,23 @@ import { format, startOfWeek, addDays } from 'date-fns';
 import { DayColumn } from './DayColumn';
 import { ActivityEditor } from './ActivityEditor';
 import { ActivityBank } from './ActivityBank';
+import { DayTemplateLibrary } from './DayTemplateLibrary';
+import { QuickTemplateSelector } from './QuickTemplateSelector';
 import { ActivityBlock } from './ActivityBlock';
 import { Plus, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTempoStorage } from '@/hooks/useTempoStorage';
+import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
+// Note: Mutation tracking moved to server-side API calls to avoid client-side database access
 import type { TempoActivity } from '@/lib/types';
 
 export function TempoCalendar() {
-  const { activities, moveActivity, addActivity, deleteActivity, updateActivity } = useTempoStorage();
+  const { activities, saveActivities, moveActivity, addActivity, deleteActivity, updateActivity } = useTempoStorage();
+  const { applyTemplateToDate } = useDayTemplatesDB();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isBankOpen, setIsBankOpen] = useState(false);
+  const [isTemplateLibraryOpen, setIsTemplateLibraryOpen] = useState(false);
+  const [isQuickTemplateSelectorOpen, setIsQuickTemplateSelectorOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -151,6 +158,89 @@ export function TempoCalendar() {
     addActivity(targetDate, newActivity);
   };
 
+  const handleApplyTemplate = async (template: any, date: string) => {
+    try {
+      const appliedActivities = await applyTemplateToDate(template.id, date, false);
+      
+      // Add the applied activities to localStorage (for immediate UI update)
+      appliedActivities.forEach((activity: TempoActivity) => {
+        addActivity(date, activity);
+      });
+      
+      alert(`Applied "${template.name}" to ${date} with ${appliedActivities.length} activities!`);
+    } catch (error) {
+      console.error('Failed to apply template:', error);
+      alert('Failed to apply template. ' + (error instanceof Error ? error.message : 'Please try again.'));
+    }
+  };
+
+  const handleOpenQuickTemplateSelector = (date: string) => {
+    setSelectedDate(date);
+    setIsQuickTemplateSelectorOpen(true);
+  };
+
+  const handleQuickTemplateApplication = async (templateId: string, date: string) => {
+    try {
+      // Get existing activities before applying template
+      const existingActivities = activities[date] || [];
+      
+      const appliedActivities = await applyTemplateToDate(templateId, date, true); // Allow overwrite
+      
+      // Update activities in a single batch operation to avoid race conditions
+      const updatedActivities = {
+        ...activities,
+        [date]: appliedActivities // Replace all activities for this date
+      };
+      
+      saveActivities(updatedActivities);
+
+      // Record mutation for audit trail via API
+      try {
+        // Get template info (we need to fetch it to get the name)
+        const templateResponse = await fetch(`/api/day-templates?id=${templateId}`);
+        if (templateResponse.ok) {
+          const templateData = await templateResponse.json();
+          const template = templateData.template;
+          
+          // Record mutation via API call
+          await fetch('/api/mutations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              date,
+              mutationType: 'template_applied',
+              mutationData: {
+                templateId,
+                templateName: template.name,
+                activitiesCount: appliedActivities.length,
+                appliedActivities,
+                replacedActivities: existingActivities.length > 0 ? existingActivities : undefined
+              },
+              sourceTemplateId: templateId
+            })
+          });
+        }
+      } catch (mutationError) {
+        // Don't fail the main operation if mutation tracking fails
+        console.warn('Failed to record mutation:', mutationError);
+      }
+    } catch (error) {
+      console.error('Failed to apply template:', error);
+      throw error; // Re-throw to let QuickTemplateSelector handle the error display
+    }
+  };
+
+  const handleEditTemplate = (template: any) => {
+    // TODO: Navigate to template edit page
+    window.location.href = `/tempo/day-template/${template.id}`;
+  };
+
+  const handleCreateNewTemplate = () => {
+    window.location.href = '/tempo/day-template';
+  };
+
   return (
     <>
       {/* Add Activity Section */}
@@ -165,11 +255,18 @@ export function TempoCalendar() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => setIsBankOpen(true)}
+            onClick={() => setIsTemplateLibraryOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-purple-100 dark:bg-purple-500/10 hover:bg-purple-200 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-medium transition-all hover:scale-105"
           >
             <Sparkles className="h-4 w-4" />
-            Browse Templates
+            Browse Day Templates
+          </button>
+          <button
+            onClick={() => setIsBankOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all hover:scale-105"
+          >
+            <Plus className="h-4 w-4" />
+            Activity Ideas
           </button>
           <button
             onClick={() => {
@@ -200,6 +297,7 @@ export function TempoCalendar() {
                 onAddActivity={handleAddActivity}
                 onEditActivity={handleEditActivity}
                 onDeleteActivity={handleDeleteActivity}
+                onApplyTemplate={handleOpenQuickTemplateSelector}
               />
             ))}
           </div>
@@ -237,6 +335,26 @@ export function TempoCalendar() {
         isOpen={isBankOpen}
         onClose={() => setIsBankOpen(false)}
         onSelectActivity={handleSelectFromBank}
+      />
+      
+      <DayTemplateLibrary
+        isOpen={isTemplateLibraryOpen}
+        onClose={() => setIsTemplateLibraryOpen(false)}
+        onCreateNew={handleCreateNewTemplate}
+        onEdit={handleEditTemplate}
+        onApplyToDate={handleApplyTemplate}
+        selectedDate={selectedDate || format(new Date(), 'yyyy-MM-dd')}
+      />
+      
+      <QuickTemplateSelector
+        isOpen={isQuickTemplateSelectorOpen}
+        onClose={() => {
+          setIsQuickTemplateSelectorOpen(false);
+          setSelectedDate(null);
+        }}
+        onApplyTemplate={handleQuickTemplateApplication}
+        selectedDate={selectedDate || format(new Date(), 'yyyy-MM-dd')}
+        hasExistingActivities={selectedDate ? (activities[selectedDate] || []).length > 0 : false}
       />
       
       {/* Floating Add Activity Button for Accessibility */}
