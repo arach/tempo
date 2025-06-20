@@ -1,23 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  DndContext, 
-  DragEndEvent, 
-  DragStartEvent,
-  DragOverlay,
-  closestCenter,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { 
-  SortableContext, 
-  verticalListSortingStrategy,
-  arrayMove
-} from '@dnd-kit/sortable';
-import { ActivityBlock } from './ActivityBlock';
+import { SortableActivityList } from './SortableActivityList';
 import { ActivityEditor } from './ActivityEditor';
 import { Plus, Save, ArrowLeft, Sparkles, Edit3, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,50 +20,13 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
   const [activities, setActivities] = useState<TempoActivity[]>(template?.activities || []);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [activeActivity, setActiveActivity] = useState<TempoActivity | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
   const [tempName, setTempName] = useState('');
   const [tempDescription, setTempDescription] = useState('');
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const activity = activities.find(a => a.id === active.id);
-    if (activity) {
-      setActiveId(active.id.toString());
-      setActiveActivity(activity);
-    }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    setActiveId(null);
-    setActiveActivity(null);
-    
-    if (!over) return;
-    
-    const oldIndex = activities.findIndex(a => a.id === active.id);
-    const newIndex = activities.findIndex(a => a.id === over.id);
-    
-    if (oldIndex !== newIndex) {
-      setActivities(arrayMove(activities, oldIndex, newIndex));
-    }
+  const handleReorderActivities = (reorderedActivities: TempoActivity[]) => {
+    setActivities(reorderedActivities);
   };
 
   const handleAddActivity = () => {
@@ -292,52 +239,14 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
               </div>
             ) : (
               <div className="space-y-6">
-                <DndContext 
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext 
-                    items={activities.map(a => a.id)} 
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-3">
-                      {activities.map((activity, index) => (
-                        <div key={activity.id} className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1">
-                            <ActivityBlock
-                              activity={activity}
-                              date="template"
-                              onEdit={handleEditActivity}
-                              onDelete={handleDeleteActivity}
-                              isDragOverlay={false}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </SortableContext>
-                  
-                  <DragOverlay>
-                    {activeId && activeActivity ? (
-                      <div style={{ 
-                        cursor: 'grabbing',
-                        transform: 'scale(1.05)',
-                        filter: 'drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))'
-                      }}>
-                        <ActivityBlock
-                          activity={activeActivity}
-                          date="template"
-                          isDragOverlay={true}
-                        />
-                      </div>
-                    ) : null}
-                  </DragOverlay>
-                </DndContext>
+                <SortableActivityList
+                  activities={activities}
+                  onEditActivity={handleEditActivity}
+                  onDeleteActivity={handleDeleteActivity}
+                  onReorderActivities={handleReorderActivities}
+                  date="template"
+                  showActions={true}
+                />
 
                 {/* Subtle suggestion after 3+ activities */}
                 {hasEnoughActivitiesForNaming && !name.trim() && (
