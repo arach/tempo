@@ -65,6 +65,23 @@ export function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_template_activities_template_id ON template_activities(template_id);
       CREATE INDEX IF NOT EXISTS idx_template_activities_position ON template_activities(template_id, position);
     `);
+
+    // Add completion columns if they don't exist (migration)
+    try {
+      sqlite.exec(`
+        ALTER TABLE activities ADD COLUMN completed INTEGER DEFAULT 0 NOT NULL;
+      `);
+    } catch (error) {
+      // Column already exists, which is fine
+    }
+
+    try {
+      sqlite.exec(`
+        ALTER TABLE activities ADD COLUMN completed_at TEXT;
+      `);
+    } catch (error) {
+      // Column already exists, which is fine
+    }
     
     console.log('Database initialized successfully');
   } catch (error) {

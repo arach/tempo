@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, gte, lte } from 'drizzle-orm';
+import { eq, and, desc, asc, gte, lte, gt, ne, sql } from 'drizzle-orm';
 import { ensureDatabaseInitialized } from './config';
 import { 
   activities, 
@@ -23,6 +23,8 @@ function dbActivityToTempo(dbActivity: Activity): TempoActivity {
     description: dbActivity.description || undefined,
     duration: dbActivity.duration || undefined,
     color: dbActivity.color || undefined,
+    completed: dbActivity.completed || false,
+    completedAt: dbActivity.completedAt || undefined,
     metadata: dbActivity.metadata as Record<string, any> || undefined,
   };
 }
@@ -38,6 +40,8 @@ function tempoActivityToDb(tempoActivity: Omit<TempoActivity, 'id'>, date: strin
     color: tempoActivity.color || null,
     date,
     position,
+    completed: tempoActivity.completed || false,
+    completedAt: tempoActivity.completedAt || null,
     metadata: tempoActivity.metadata || null,
     createdAt: now,
     updatedAt: now,
@@ -183,19 +187,127 @@ export class ActivitiesService {
     return result.changes > 0;
   }
 
-  async moveActivity(activityId: string, fromDate: string, toDate: string, newPosition: number): Promise<boolean> {
+  async moveActivity(activityId: string, fromDate: string, toDate: string, newPosition: number): Promise<TempoActivity | null> {
     const db = this.getDb();
     
-    const result = await db
-      .update(activities)
-      .set({ 
-        date: toDate, 
-        position: newPosition,
-        updatedAt: new Date().toISOString()
-      })
-      .where(and(eq(activities.id, activityId), eq(activities.date, fromDate)));
+    // Get the activity
+    const activity = await db
+      .select()
+      .from(activities)
+      .where(and(eq(activities.id, activityId), eq(activities.date, fromDate)))
+      .limit(1);
+    
+    if (!activity[0]) {
+      return null;
+    }
 
-    return result.changes > 0;
+    // Note: We get the target activities info for position calculation in the transaction
+
+    // Update positions in a transaction
+    await db.transaction(async (tx) => {
+      // If moving within the same day
+      if (fromDate === toDate) {
+        const currentPosition = activity[0].position;
+        
+        if (currentPosition !== newPosition) {
+          // Shift positions between old and new position
+          const minPos = Math.min(currentPosition || 0, newPosition);
+          const maxPos = Math.max(currentPosition || 0, newPosition);
+          const increment = (currentPosition || 0) < newPosition ? -1 : 1;
+          
+          await tx
+            .update(activities)
+            .set({ position: sql`position + ${increment}` })
+            .where(
+              and(
+                eq(activities.date, toDate),
+                gte(activities.position, minPos),
+                lte(activities.position, maxPos),
+                ne(activities.id, activityId)
+              )
+            );
+        }
+      } else {
+        // Moving to different day
+        // Fill gap in source date
+        await tx
+          .update(activities)
+          .set({ position: sql`position - 1` })
+          .where(
+            and(
+              eq(activities.date, fromDate),
+              gt(activities.position, activity[0].position || 0)
+            )
+          );
+        
+        // Make room in target date
+        await tx
+          .update(activities)
+          .set({ position: sql`position + 1` })
+          .where(
+            and(
+              eq(activities.date, toDate),
+              gte(activities.position, newPosition)
+            )
+          );
+      }
+
+      // Update the activity
+      await tx
+        .update(activities)
+        .set({ 
+          date: toDate, 
+          position: newPosition,
+          updatedAt: new Date().toISOString()
+        })
+        .where(eq(activities.id, activityId));
+    });
+
+    // Return updated activity
+    const updatedActivity = await db
+      .select()
+      .from(activities)
+      .where(eq(activities.id, activityId))
+      .limit(1);
+    
+    return updatedActivity[0] ? dbActivityToTempo(updatedActivity[0]) : null;
+  }
+
+  async toggleActivityCompletion(date: string, activityId: string): Promise<TempoActivity | null> {
+    const db = this.getDb();
+    
+    // Get current activity to check completion status
+    const currentActivity = await db
+      .select()
+      .from(activities)
+      .where(and(eq(activities.id, activityId), eq(activities.date, date)))
+      .limit(1);
+    
+    if (!currentActivity[0]) {
+      return null;
+    }
+
+    const isCurrentlyCompleted = currentActivity[0].completed;
+    const now = new Date().toISOString();
+
+    // Toggle completion status
+    await db
+      .update(activities)
+      .set({
+        completed: !isCurrentlyCompleted,
+        completedAt: !isCurrentlyCompleted ? now : null,
+        updatedAt: now
+      })
+      .where(and(eq(activities.id, activityId), eq(activities.date, date)));
+
+    // Return updated activity
+    const updatedActivity = await db
+      .select()
+      .from(activities)
+      .where(eq(activities.id, activityId))
+      .limit(1);
+    
+    return updatedActivity[0] ? dbActivityToTempo(updatedActivity[0]) : null;
   }
 }
 

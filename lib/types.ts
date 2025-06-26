@@ -7,6 +7,8 @@ export interface TempoActivity {
   description?: string;
   duration?: string; // "30 min", "1 hour" - human readable
   color?: string;
+  completed?: boolean; // Completion status
+  completedAt?: string; // ISO timestamp when completed
   metadata?: Record<string, any>;
 }
 

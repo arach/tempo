@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ACTIVITY_TYPES, type ActivityType, type TempoActivity } from '@/lib/types';
 
 interface ActivityEditorProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (activity: Omit<TempoActivity, 'id'>) => void;
-  defaultDay?: string;
   editingActivity?: TempoActivity;
 }
 
@@ -17,16 +15,17 @@ export function ActivityEditor({
   isOpen, 
   onClose, 
   onSave, 
-  defaultDay,
   editingActivity 
 }: ActivityEditorProps) {
   const [title, setTitle] = useState(editingActivity?.title || '');
+  const [description, setDescription] = useState(editingActivity?.description || '');
   const [type, setType] = useState<ActivityType>(editingActivity?.type || 'enrichment');
   const [duration, setDuration] = useState(editingActivity?.duration || '30 min');
 
   useEffect(() => {
     if (editingActivity) {
       setTitle(editingActivity.title);
+      setDescription(editingActivity.description || '');
       setType(editingActivity.type);
       setDuration(editingActivity.duration || '30 min');
     }
@@ -35,16 +34,23 @@ export function ActivityEditor({
   if (!isOpen) return null;
 
   const handleSave = () => {
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      // Focus the title input if empty
+      const titleInput = document.querySelector('input[placeholder*="Meditation"]') as HTMLInputElement;
+      titleInput?.focus();
+      return;
+    }
     
     onSave({
-      title,
+      title: title.trim(),
+      description: description.trim() || undefined,
       type,
       duration
     });
     
     // Reset form
     setTitle('');
+    setDescription('');
     setType('enrichment');
     setDuration('30 min');
     onClose();
@@ -52,14 +58,34 @@ export function ActivityEditor({
 
   const handleClose = () => {
     setTitle('');
+    setDescription('');
     setType('enrichment');
     setDuration('30 min');
     onClose();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      handleClose();
+    } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      handleSave();
+    } else if (/^[1-4]$/.test(e.key) && (e.metaKey || e.ctrlKey)) {
+      // Cmd/Ctrl + 1-4: Quick select activity type
+      e.preventDefault();
+      const types: ActivityType[] = ['enrichment', 'connection', 'growth', 'creative'];
+      const selectedType = types[parseInt(e.key) - 1];
+      if (selectedType) {
+        setType(selectedType);
+      }
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl flex items-center justify-center p-6 z-50 animate-fade-in">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-[460px] animate-scale-up overflow-hidden">
+    <div 
+      className="fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 z-50 animate-fade-in"
+      onKeyDown={handleKeyDown}
+    >
+      <div className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-2xl shadow-2xl w-full max-w-[460px] animate-scale-up overflow-hidden h-full sm:h-auto max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4">
           <h2 className="text-[17px] font-semibold text-gray-900 dark:text-white tracking-tight">
@@ -74,7 +100,7 @@ export function ActivityEditor({
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-6 space-y-4">
+        <div className="px-6 pb-6 space-y-4 flex-1 overflow-y-auto">
           {/* Title Input */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-[0.06em]">
@@ -87,6 +113,20 @@ export function ActivityEditor({
               placeholder="e.g., Morning Meditation"
               className="w-full px-3.5 py-2.5 text-[14px] border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent hover:border-gray-300 dark:hover:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
               autoFocus
+            />
+          </div>
+
+          {/* Description Input */}
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-[0.06em]">
+              Description <span className="text-gray-400 normal-case">(optional)</span>
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add any notes or details about this activity..."
+              rows={2}
+              className="w-full px-3.5 py-2.5 text-[14px] border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent hover:border-gray-300 dark:hover:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all resize-none"
             />
           </div>
 
@@ -164,7 +204,7 @@ export function ActivityEditor({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 px-6 py-3.5 bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-end gap-2 px-6 py-3.5 bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-100 dark:border-gray-800 flex-shrink-0">
           <button
             onClick={handleClose}
             className="px-4 py-2 text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
@@ -173,8 +213,7 @@ export function ActivityEditor({
           </button>
           <button
             onClick={handleSave} 
-            disabled={!title.trim()}
-            className="px-5 py-2 text-[13px] font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl transition-all hover:scale-105 disabled:hover:scale-100 shadow-sm"
+            className="px-5 py-2 text-[13px] font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 rounded-xl transition-all hover:scale-105 shadow-sm"
           >
             {editingActivity ? 'Save Changes' : 'Add Activity'}
           </button>

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { config } from 'dotenv';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -9,7 +10,16 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 
-const TEMPO_API_BASE = 'http://localhost:3000/api';
+// Load environment variables
+// Priority: .env.local > .env.development > .env.production > .env
+// This follows Next.js/Vercel conventions
+config({ path: '.env.local' });
+config({ path: '.env.development' });
+config({ path: '.env.production' });
+config({ path: '.env' });
+
+const TEMPO_API_BASE = process.env.TEMPO_API_URL || 'http://localhost:3000/api';
+const TEMPO_WEB_BASE = process.env.TEMPO_WEB_URL || 'http://localhost:3000';
 
 class TempoMCPServer {
   private server: Server;
@@ -28,6 +38,21 @@ class TempoMCPServer {
     );
 
     this.setupToolHandlers();
+  }
+
+  private formatResponse(data: any, viewUrl?: string) {
+    const response: any = { result: data };
+    if (viewUrl) {
+      response.viewUrl = `${TEMPO_WEB_BASE}${viewUrl}`;
+    }
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(response, null, 2)
+        }
+      ]
+    };
   }
 
   private setupToolHandlers() {
@@ -198,6 +223,25 @@ class TempoMCPServer {
               },
               required: ['id']
             }
+          },
+          {
+            name: 'complete_activity',
+            description: 'Mark an activity as complete or incomplete',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                date: {
+                  type: 'string',
+                  pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+                  description: 'Date in YYYY-MM-DD format'
+                },
+                activityId: {
+                  type: 'string',
+                  description: 'Activity ID to mark as complete'
+                }
+              },
+              required: ['date', 'activityId']
+            }
           }
         ]
       };
@@ -225,6 +269,8 @@ class TempoMCPServer {
             return await this.applyDayTemplate(args);
           case 'delete_day_template':
             return await this.deleteDayTemplate(args);
+          case 'complete_activity':
+            return await this.completeActivity(args);
           default:
             throw new McpError(
               ErrorCode.MethodNotFound,
@@ -260,14 +306,15 @@ class TempoMCPServer {
     const response = await fetch(url);
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // Determine the appropriate view URL
+    let viewUrl: string | undefined;
+    if (date) {
+      viewUrl = `/tempo/day/${date}`;
+    } else if (startDate) {
+      viewUrl = `/tempo/week/${startDate}`;
+    }
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async createActivity(args: any) {
@@ -281,14 +328,10 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for the day where activity was created
+    const viewUrl = `/tempo/day/${date}`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async updateActivity(args: any) {
@@ -302,14 +345,10 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for the day where activity was updated
+    const viewUrl = `/tempo/day/${date}`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async deleteActivity(args: any) {
@@ -321,14 +360,10 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for the day where activity was deleted
+    const viewUrl = `/tempo/day/${date}`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async getDayTemplates(args: any) {
@@ -347,14 +382,10 @@ class TempoMCPServer {
     const response = await fetch(url);
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for templates list
+    const viewUrl = `/tempo/templates`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async createDayTemplate(args: any) {
@@ -366,17 +397,15 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for the created template (if ID is available) or templates list
+    const viewUrl = data.id ? `/tempo/templates/${data.id}` : `/tempo/templates`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async applyDayTemplate(args: any) {
+    const { date } = args; // Extract date from args
+    
     const response = await fetch(`${TEMPO_API_BASE}/day-templates/apply`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -385,14 +414,10 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for the day where template was applied
+    const viewUrl = `/tempo/day/${date}`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   private async deleteDayTemplate(args: any) {
@@ -404,14 +429,27 @@ class TempoMCPServer {
 
     const data = await response.json();
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(data, null, 2)
-        }
-      ]
-    };
+    // View URL for templates list after deletion
+    const viewUrl = `/tempo/templates`;
+
+    return this.formatResponse(data, viewUrl);
+  }
+
+  private async completeActivity(args: any) {
+    const { date, activityId } = args;
+
+    const response = await fetch(`${TEMPO_API_BASE}/activities/complete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, activityId })
+    });
+
+    const data = await response.json();
+
+    // View URL for the day where activity was completed
+    const viewUrl = `/tempo/day/${date}`;
+
+    return this.formatResponse(data, viewUrl);
   }
 
   async run() {

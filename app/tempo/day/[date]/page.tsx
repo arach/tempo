@@ -10,10 +10,11 @@ import {
   ChevronRight, 
   Calendar,
   Plus,
-  Sparkles
+  Sparkles,
+  Focus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTempoStorage } from '@/hooks/useTempoStorage';
+import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 import { ActivityEditor } from '@/components/tempo/ActivityEditor';
 import { QuickTemplateSelector } from '@/components/tempo/QuickTemplateSelector';
@@ -23,7 +24,7 @@ import type { TempoActivity } from '@/lib/types';
 export default function DayViewPage() {
   const router = useRouter();
   const params = useParams();
-  const { activities, saveActivities, addActivity, deleteActivity, updateActivity } = useTempoStorage();
+  const { activities, saveActivities, addActivity, deleteActivity, updateActivity, isLoading, error } = useTempoStorageAPI();
   const { applyTemplateToDate } = useDayTemplatesDB();
   
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -121,6 +122,38 @@ export default function DayViewPage() {
   const shortDate = format(parsedDate, 'MMM d');
   const isToday = currentDate === format(new Date(), 'yyyy-MM-dd');
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-purple-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading activities...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4">
+            <p className="font-medium">Unable to load activities</p>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
@@ -140,6 +173,16 @@ export default function DayViewPage() {
             </div>
             
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push(`/tempo/day/${currentDate}/focus`)}
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+              >
+                <Focus className="h-4 w-4 mr-2" />
+                Focus Mode
+              </Button>
+              
               <Button
                 variant="ghost"
                 size="sm"
@@ -184,9 +227,6 @@ export default function DayViewPage() {
               onClick={handleAddActivity}
               size="lg"
               className="bg-gray-900 dark:bg-transparent hover:bg-gray-800 text-white dark:text-white border border-transparent dark:border-transparent transition-all"
-              style={{
-                '--tw-bg-opacity': '1'
-              }}
               onMouseEnter={(e) => {
                 if (document.documentElement.classList.contains('dark')) {
                   e.currentTarget.style.transition = 'background-color 0.3s ease, border-color 0.3s ease';
@@ -229,6 +269,48 @@ export default function DayViewPage() {
           date={currentDate}
         />
       </div>
+      
+      {/* Create Day Template from Current Day */}
+      {dayActivities.length > 0 && (
+        <div className="relative mt-12 py-16 overflow-hidden">
+          {/* Background with gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-50/50 to-purple-100 dark:from-transparent dark:via-purple-500/10 dark:to-purple-500/20" />
+          
+          {/* Decorative elements for dark mode */}
+          <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-purple-600/10 dark:via-transparent dark:to-pink-600/10" />
+          
+          <div className="relative max-w-3xl mx-auto px-4 text-center">
+            <div className="inline-flex flex-col items-center">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-purple-500/25 dark:shadow-purple-400/20">
+                <Sparkles className="h-7 w-7 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                Save this day as a template
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-8 max-w-md">
+                Turn today's activities into a reusable template for future planning
+              </p>
+              <Button
+                size="default"
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 dark:from-purple-500 dark:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-white font-medium shadow-lg shadow-purple-600/25 dark:shadow-purple-500/25 transition-all hover:scale-105"
+                onClick={() => {
+                  // Navigate to template creation with current activities
+                  const templateData = {
+                    activities: dayActivities,
+                    sourceDate: currentDate
+                  };
+                  // Store in sessionStorage to pass to template creation page
+                  sessionStorage.setItem('templateDraft', JSON.stringify(templateData));
+                  router.push('/tempo/day-template');
+                }}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Create Day Template
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       <ActivityEditor
@@ -238,7 +320,6 @@ export default function DayViewPage() {
           setEditingActivity(null);
         }}
         onSave={handleSaveActivity}
-        defaultDay={currentDate}
         editingActivity={editingActivity || undefined}
       />
 

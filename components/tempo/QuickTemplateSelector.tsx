@@ -12,7 +12,8 @@ import {
   Clock,
   Loader2,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DayTemplate } from '@/lib/types';
@@ -185,8 +186,31 @@ export function QuickTemplateSelector({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {templates.map((template) => (
+              <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Create New Template Card */}
+                  <Card 
+                    className="p-4 cursor-pointer transition-all border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md bg-gray-50 dark:bg-gray-800/50"
+                    onClick={() => {
+                      onClose();
+                      // Navigate to day template creation
+                      window.location.href = '/tempo/day-template';
+                    }}
+                  >
+                    <div className="text-center py-4">
+                      <div className="inline-flex items-center justify-center w-10 h-10 bg-purple-100 dark:bg-purple-900/50 rounded-full mb-3">
+                        <Plus className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="font-medium text-gray-900 dark:text-white text-sm mb-1">
+                        Create New Template
+                      </h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Design a custom day template
+                      </p>
+                    </div>
+                  </Card>
+                  
+                  {templates.map((template) => (
                   <Card 
                     key={template.id} 
                     className={cn(
@@ -260,7 +284,37 @@ export function QuickTemplateSelector({
                     </Button>
                   </Card>
                 ))}
+                </div>
+                
+                {/* Create Weekly Template Call-to-Action */}
+                {templates.length > 0 && (
+              <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mb-3">
+                    <Calendar className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Save time with weekly templates
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                    Create a weekly template to apply the same pattern across multiple days at once
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-purple-200 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-900/20"
+                    onClick={() => {
+                      // TODO: Implement weekly template creation
+                      console.log('Create weekly template clicked');
+                    }}
+                  >
+                    <Sparkles className="h-3 w-3 mr-2" />
+                    Create Weekly Template
+                  </Button>
+                </div>
               </div>
+            )}
+          </div>
             )}
           </div>
         )}

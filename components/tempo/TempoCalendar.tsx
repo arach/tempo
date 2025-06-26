@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -14,25 +14,31 @@ import {
 } from '@dnd-kit/core';
 import { format, startOfWeek, addDays } from 'date-fns';
 import { DayColumn } from './DayColumn';
+import { ExperimentalDayColumn } from './ExperimentalDayColumn';
+import { ExperimentalStackedDayColumn } from './ExperimentalStackedDayColumn';
+import { ExperimentalBubbleDayColumn } from './ExperimentalBubbleDayColumn';
+import { ViewModeToggle, ViewMode } from './ViewModeToggle';
 import { ActivityEditor } from './ActivityEditor';
 import { ActivityBank } from './ActivityBank';
 import { DayTemplateLibrary } from './DayTemplateLibrary';
 import { QuickTemplateSelector } from './QuickTemplateSelector';
 import { ActivityBlock } from './ActivityBlock';
-import { Plus, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useTempoStorage } from '@/hooks/useTempoStorage';
+import { Plus, Sparkles, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 // Note: Mutation tracking moved to server-side API calls to avoid client-side database access
 import type { TempoActivity } from '@/lib/types';
 
 export function TempoCalendar() {
-  const { activities, saveActivities, moveActivity, addActivity, deleteActivity, updateActivity } = useTempoStorage();
+  const { activities, saveActivities, moveActivity, addActivity, deleteActivity, updateActivity, isLoading, error } = useTempoStorageAPI();
   const { applyTemplateToDate } = useDayTemplatesDB();
+  const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isBankOpen, setIsBankOpen] = useState(false);
   const [isTemplateLibraryOpen, setIsTemplateLibraryOpen] = useState(false);
   const [isQuickTemplateSelectorOpen, setIsQuickTemplateSelectorOpen] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -93,15 +99,30 @@ export function TempoCalendar() {
     
     if (!over) return;
     
-    // Handle moving activities between days
-    const [fromDate, activityId] = active.id.toString().split(':');
-    const toDate = over.id.toString();
+    const activeId = active.id.toString();
+    const overId = over.id.toString();
     
-    // If it's a different column (day), move the activity
-    if (fromDate !== toDate) {
-      moveActivity(activityId, fromDate, toDate, 0);
+    // Parse IDs to get date and activity info
+    const [activeDate, activeActivityId] = activeId.includes(':') ? activeId.split(':') : [null, activeId];
+    const [overDate, overActivityId] = overId.includes(':') ? overId.split(':') : [overId, null];
+    
+    // If we don't have proper active info, fallback to old behavior
+    if (!activeDate || !activeActivityId) return;
+    
+    // Handle moving between different days
+    if (activeDate !== overDate && !overActivityId) {
+      moveActivity(activeActivityId, activeDate, overDate, 0);
     }
-    // TODO: Handle reordering within the same column
+    // Handle reordering within the same day
+    else if (activeDate === overDate && overActivityId && activeActivityId !== overActivityId) {
+      const dayActivities = activities[activeDate] || [];
+      const activeIndex = dayActivities.findIndex(a => a.id === activeActivityId);
+      const overIndex = dayActivities.findIndex(a => a.id === overActivityId);
+      
+      if (activeIndex !== -1 && overIndex !== -1) {
+        moveActivity(activeActivityId, activeDate, activeDate, overIndex);
+      }
+    }
   };
 
   const handleAddActivity = (date: string) => {
@@ -241,44 +262,191 @@ export function TempoCalendar() {
     window.location.href = '/tempo/day-template';
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle shortcuts when no modal is open
+      if (isEditorOpen || isBankOpen || isTemplateLibraryOpen || isQuickTemplateSelectorOpen || showKeyboardHelp) {
+        return;
+      }
+
+      // ? key: Show keyboard shortcuts help
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+        e.preventDefault();
+        setShowKeyboardHelp(true);
+      }
+
+      // Cmd/Ctrl + K: Quick add activity to today
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const today = format(new Date(), 'yyyy-MM-dd');
+        handleAddActivity(today);
+      }
+      
+      // Cmd/Ctrl + Shift + T: Open template library
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'T') {
+        e.preventDefault();
+        setIsTemplateLibraryOpen(true);
+      }
+      
+      // Cmd/Ctrl + Shift + B: Open activity bank
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
+        e.preventDefault();
+        setIsBankOpen(true);
+      }
+
+      // Arrow keys: Navigate between days (add activity to selected day)
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const today = new Date();
+        const direction = e.key === 'ArrowLeft' ? -1 : 1;
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + direction);
+        const dateStr = format(targetDate, 'yyyy-MM-dd');
+        
+        if (e.shiftKey) {
+          // Shift + Arrow: Add activity to that day
+          handleAddActivity(dateStr);
+        }
+      }
+
+      // Numbers 1-7: Quick add to days of the week
+      if (/^[1-7]$/.test(e.key) && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        const dayIndex = parseInt(e.key) - 1;
+        const targetDay = weekDays[dayIndex];
+        if (targetDay) {
+          handleAddActivity(targetDay.date);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditorOpen, isBankOpen, isTemplateLibraryOpen, isQuickTemplateSelectorOpen, showKeyboardHelp, weekDays]);
+
+  const getRecentlyUsedActivities = () => {
+    const allActivities: (TempoActivity & { lastUsed: Date })[] = [];
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    
+    // Collect all activities from the last 2 weeks
+    Object.entries(activities).forEach(([dateStr, dayActivities]) => {
+      const date = new Date(dateStr);
+      if (date >= twoWeeksAgo) {
+        dayActivities.forEach(activity => {
+          allActivities.push({
+            ...activity,
+            lastUsed: date
+          });
+        });
+      }
+    });
+    
+    // Get unique activities by title and sort by most recent
+    const uniqueActivities = allActivities
+      .sort((a, b) => b.lastUsed.getTime() - a.lastUsed.getTime())
+      .filter((activity, index, arr) => 
+        arr.findIndex(a => a.title.toLowerCase() === activity.title.toLowerCase()) === index
+      )
+      .slice(0, 4);
+    
+    return uniqueActivities;
+  };
+
+  const handleQuickAddActivity = (templateActivity: TempoActivity) => {
+    // Add to today by default
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const newActivity: TempoActivity = {
+      ...templateActivity,
+      id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    };
+    addActivity(today, newActivity);
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-purple-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading your activities...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4">
+            <p className="font-medium">Unable to load activities</p>
+            <p className="text-sm mt-1">{error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Add Activity Section */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
-            Quick Actions
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Add activities to your week
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsTemplateLibraryOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-purple-100 dark:bg-purple-500/10 hover:bg-purple-200 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-medium transition-all hover:scale-105"
-          >
-            <Sparkles className="h-4 w-4" />
-            Browse Day Templates
-          </button>
-          <button
-            onClick={() => setIsBankOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all hover:scale-105"
-          >
-            <Plus className="h-4 w-4" />
-            Activity Ideas
-          </button>
-          <button
-            onClick={() => {
-              const today = format(new Date(), 'yyyy-MM-dd');
-              handleAddActivity(today);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-medium transition-all hover:scale-105"
-          >
-            <Plus className="h-4 w-4" />
-            Add Activity
-          </button>
-        </div>
+      {/* View Mode Toggle */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Recent Activities
+        </h3>
+        <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+      </div>
+      
+      {/* Recently Used Activities Section - More Subtle */}
+      <div className="mb-4">
+        
+        {getRecentlyUsedActivities().length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {getRecentlyUsedActivities().map((activity, index) => (
+              <button
+                key={`${activity.title}-${index}`}
+                onClick={() => handleQuickAddActivity(activity)}
+                className="group p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 transition-all hover:scale-105 text-left"
+              >
+                <div className="flex items-start gap-2">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full mt-1.5 flex-shrink-0",
+                    activity.type === 'enrichment' && "bg-blue-400",
+                    activity.type === 'connection' && "bg-pink-400", 
+                    activity.type === 'growth' && "bg-green-400",
+                    activity.type === 'creative' && "bg-purple-400"
+                  )} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
+                      {activity.title}
+                    </p>
+                    {activity.duration && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {activity.duration}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+            <Plus className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Start adding activities to see your recently used ones here
+            </p>
+          </div>
+        )}
       </div>
 
       <DndContext 
@@ -287,19 +455,38 @@ export function TempoCalendar() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden relative">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-visible relative">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-0">
-            {weekDays.map(day => (
-              <DayColumn 
-                key={day.date} 
-                day={day} 
-                activities={activities[day.date] || []} 
-                onAddActivity={handleAddActivity}
-                onEditActivity={handleEditActivity}
-                onDeleteActivity={handleDeleteActivity}
-                onApplyTemplate={handleOpenQuickTemplateSelector}
-              />
-            ))}
+            {weekDays.map(day => {
+              const dayActivities = activities[day.date] || [];
+              const commonProps = {
+                date: new Date(day.date),
+                activities: dayActivities,
+                isToday: day.isToday,
+                isEmpty: dayActivities.length === 0
+              };
+
+              switch (viewMode) {
+                case 'grouped':
+                  return <ExperimentalDayColumn key={day.date} {...commonProps} />;
+                case 'stacked':
+                  return <ExperimentalStackedDayColumn key={day.date} {...commonProps} />;
+                case 'bubbles':
+                  return <ExperimentalBubbleDayColumn key={day.date} {...commonProps} />;
+                default:
+                  return (
+                    <DayColumn 
+                      key={day.date} 
+                      day={day} 
+                      activities={dayActivities} 
+                      onAddActivity={handleAddActivity}
+                      onEditActivity={handleEditActivity}
+                      onDeleteActivity={handleDeleteActivity}
+                      onApplyTemplate={handleOpenQuickTemplateSelector}
+                    />
+                  );
+              }
+            })}
           </div>
         </div>
         
@@ -327,7 +514,6 @@ export function TempoCalendar() {
           setEditingActivity(null);
         }}
         onSave={handleSaveActivity}
-        defaultDay={selectedDate || undefined}
         editingActivity={editingActivity || undefined}
       />
       
@@ -363,11 +549,70 @@ export function TempoCalendar() {
           const today = format(new Date(), 'yyyy-MM-dd');
           handleAddActivity(today);
         }}
-        className="fixed bottom-6 right-6 h-14 w-14 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group"
-        title="Add Activity to Today"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group"
+        title="Add Activity to Today (⌘K)"
       >
-        <Plus className="h-6 w-6" />
+        <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
       </button>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      {showKeyboardHelp && (
+        <div className="fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 z-50 animate-fade-in">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-[500px] animate-scale-up overflow-hidden h-full sm:h-auto max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-[17px] font-semibold text-gray-900 dark:text-white">
+                Keyboard Shortcuts
+              </h2>
+              <button
+                onClick={() => setShowKeyboardHelp(false)}
+                className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-all hover:scale-110"
+              >
+                <X className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+            
+            <div className="px-6 py-5 space-y-4 flex-1 overflow-y-auto">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Quick add activity to today</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⌘K</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Open template library</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⌘⇧T</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Open activity bank</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⌘⇧B</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Add activity to tomorrow</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⇧→</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Add activity to yesterday</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⇧←</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Quick add to day of week</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⌘1-7</kbd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Show this help</span>
+                  <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">?</kbd>
+                </div>
+              </div>
+              
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  In dialogs: <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono">⌘↵</kbd> to save, 
+                  <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono ml-1">Esc</kbd> to close
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

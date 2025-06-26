@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Plus, Filter, Search } from 'lucide-react';
 import { ACTIVITY_TYPES, type ActivityType, type TempoActivity } from '@/lib/types';
-import { useTempoStorage } from '@/hooks/useTempoStorage';
+import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +61,7 @@ const EXPANDED_ACTIVITY_TEMPLATES: Record<ActivityType, ActivityTemplate[]> = {
 };
 
 export function ActivityBankSection() {
-  const { addActivity } = useTempoStorage();
+  const { addActivity } = useTempoStorageAPI();
   const [selectedCategory, setSelectedCategory] = useState<ActivityType | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 

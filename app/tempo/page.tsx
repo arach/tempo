@@ -22,11 +22,11 @@ export default function TempoPage() {
               <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">Plan meaningful activities without the pressure of exact times</p>
             </div>
             <Link 
-              href="/tempo/day-template"
+              href="/tempo/weekly-template"
               className="flex items-center gap-2 px-4 py-2.5 bg-purple-100 dark:bg-purple-500/10 hover:bg-purple-200 dark:hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-xl font-medium transition-all hover:scale-105"
             >
               <Sparkles className="h-4 w-4" />
-              Create Day Template
+              Create Weekly Template
             </Link>
           </div>
         </header>

@@ -3,7 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Book, Heart, Sprout, Palette, MoreHorizontal, Edit2, Trash2 } from 'lucide-react';
+import { Book, Heart, Sprout, Palette, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TempoActivity } from '@/lib/types';
 
@@ -57,41 +57,41 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
     <div ref={disableSorting ? undefined : setNodeRef} style={style} {...(disableSorting ? {} : attributes)}>
       <div 
         className={cn(
-          'group relative px-4 py-3.5 rounded border transition-all hover:shadow-sm',
+          'group relative px-3 sm:px-4 py-3 sm:py-3.5 rounded border transition-all hover:shadow-sm',
           !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.005] hover:-translate-y-px',
           colorMap[activity.type],
           isDragging && 'opacity-50'
         )}
         {...(disableSorting ? {} : listeners)}
       >
-        {/* Action buttons - only visible on hover */}
+        {/* Action buttons - visible on mobile, hover on desktop */}
         <div 
-          className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex gap-0.5 sm:gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => e.stopPropagation()}
         >
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 hover:bg-black/5 dark:hover:bg-white/5 rounded"
+            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 rounded"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               onEdit?.(activity);
             }}
           >
-            <Edit2 className="h-3.5 w-3.5" />
+            <Edit2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 hover:bg-black/5 dark:hover:bg-white/5 hover:text-red-500 rounded"
+            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 hover:text-red-500 rounded"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               onDelete?.(activity.id);
             }}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Button>
         </div>
 

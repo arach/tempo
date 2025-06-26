@@ -47,7 +47,10 @@
       "Bash(curl:*)",
       "Bash(pkill:*)",
       "Bash(pnpm lint:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(rg:*)",
+      "Bash(gh issue list:*)"
     ],
     "deny": []
   }

@@ -12,6 +12,8 @@ export const activities = sqliteTable('activities', {
   color: text('color'),
   date: text('date').notNull(), // ISO date string (YYYY-MM-DD)
   position: integer('position').default(0), // For ordering within a day
+  completed: integer('completed', { mode: 'boolean' }).notNull().default(false), // Completion status
+  completedAt: text('completed_at'), // ISO timestamp when completed
   metadata: text('metadata', { mode: 'json' }), // JSON field for additional data
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),

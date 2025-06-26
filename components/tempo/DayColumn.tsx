@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Plus, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ActivityBlock } from './ActivityBlock';
 import { cn } from '@/lib/utils';
 import type { TempoActivity } from '@/lib/types';
@@ -56,7 +55,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
         <button
           onClick={handleDayHeaderClick}
           className={cn(
-            "w-full py-4 px-3 pb-6 text-center transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] group",
+            "w-full py-4 px-3 pb-5 text-center transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] group touch-manipulation",
             day.isToday && "bg-transparent hover:bg-blue-50 dark:hover:bg-blue-900/20"
           )}
           title={`View details for ${day.dayOfWeek}`}
@@ -86,7 +85,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
             className={cn(
               "w-full py-1 px-2 rounded border border-dashed transition-all duration-200 group",
               "border-purple-200 dark:border-purple-600 hover:border-purple-300 dark:hover:border-purple-500",
-              "bg-purple-50/90 dark:bg-purple-900/20 hover:bg-purple-100/90 dark:hover:bg-purple-800/30",
+              "bg-purple-50/90 dark:bg-purple-500/20 hover:bg-purple-100/90 dark:hover:bg-purple-500/30",
               "flex items-center justify-center gap-1",
               "backdrop-blur-sm shadow-sm"
             )}
