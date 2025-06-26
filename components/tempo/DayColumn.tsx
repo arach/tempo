@@ -42,14 +42,14 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
       className={cn(
         "bg-gray-50 dark:bg-gray-800 h-full transition-all relative overflow-visible",
         "border-r border-gray-200 dark:border-gray-700 last:border-r-0",
-        day.isToday && "bg-blue-50 dark:bg-blue-900/60",
+        day.isToday && "bg-blue-50 dark:bg-blue-900",
         isOver && "bg-blue-100/50 dark:bg-blue-500/30 ring-2 ring-inset ring-blue-500/20"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {day.isToday && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/50 to-blue-600/50" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
       )}
       <div className="relative border-b border-gray-200 dark:border-gray-700">
         <button
