@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -23,7 +24,7 @@ import { ActivityBank } from './ActivityBank';
 import { DayTemplateLibrary } from './DayTemplateLibrary';
 import { QuickTemplateSelector } from './QuickTemplateSelector';
 import { ActivityBlock } from './ActivityBlock';
-import { Plus, Sparkles, X } from 'lucide-react';
+import { Plus, Sparkles, X, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
@@ -31,6 +32,7 @@ import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 import type { TempoActivity } from '@/lib/types';
 
 export function TempoCalendar() {
+  const router = useRouter();
   const { activities, saveActivities, moveActivity, addActivity, deleteActivity, updateActivity, isLoading, error } = useTempoStorageAPI();
   const { applyTemplateToDate } = useDayTemplatesDB();
   const [viewMode, setViewMode] = useState<ViewMode>('default');
@@ -403,7 +405,16 @@ export function TempoCalendar() {
         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Recent Activities
         </h3>
-        <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/tempo/streaks')}
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+          >
+            <TrendingUp className="h-4 w-4" />
+            Streaks
+          </button>
+          <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+        </div>
       </div>
       
       {/* Recently Used Activities Section - More Subtle */}

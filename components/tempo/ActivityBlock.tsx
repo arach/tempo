@@ -3,7 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Book, Heart, Sprout, Palette, Edit2, Trash2 } from 'lucide-react';
+import { Book, Heart, Sprout, Palette, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { TempoActivity } from '@/lib/types';
 
@@ -19,6 +19,13 @@ const colorMap = {
   connection: 'bg-pink-100 border-pink-300 text-pink-800 dark:bg-pink-100 dark:border-pink-300 dark:text-pink-800',
   growth: 'bg-green-100 border-green-300 text-green-800 dark:bg-green-100 dark:border-green-300 dark:text-green-800',
   creative: 'bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-100 dark:border-purple-300 dark:text-purple-800',
+};
+
+const completedColorMap = {
+  enrichment: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
+  connection: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
+  growth: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
+  creative: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
 };
 
 interface ActivityBlockProps {
@@ -59,8 +66,9 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
         className={cn(
           'group relative px-3 sm:px-4 py-3 sm:py-3.5 rounded border transition-all hover:shadow-sm',
           !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.005] hover:-translate-y-px',
-          colorMap[activity.type],
-          isDragging && 'opacity-50'
+          activity.completed ? completedColorMap[activity.type] : colorMap[activity.type],
+          isDragging && 'opacity-50',
+          activity.completed && 'ring-1 ring-green-300 dark:ring-green-600 shadow-sm'
         )}
         {...(disableSorting ? {} : listeners)}
       >
@@ -95,12 +103,31 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
           </Button>
         </div>
 
+        {/* Completion Check Mark Overlay */}
+        {activity.completed && (
+          <div className="absolute top-1 left-1">
+            <div className="bg-green-500 rounded-full p-0.5">
+              <CheckCircle2 className="w-3 h-3 text-white" />
+            </div>
+          </div>
+        )}
+
         <div className="flex items-start gap-3">
           <Icon className="w-3.5 h-3.5 mt-1 flex-shrink-0 opacity-60" />
           <div className="flex-1 min-w-0">
-            <p className="font-normal text-[13px] leading-tight">{activity.title}</p>
+            <p className={cn(
+              "font-normal text-[13px] leading-tight",
+              activity.completed && "line-through opacity-75"
+            )}>
+              {activity.title}
+            </p>
             {activity.duration && (
-              <p className="text-[11px] opacity-50 mt-0.5 font-light">{activity.duration}</p>
+              <p className={cn(
+                "text-[11px] opacity-50 mt-0.5 font-light",
+                activity.completed && "line-through"
+              )}>
+                {activity.duration}
+              </p>
             )}
           </div>
         </div>

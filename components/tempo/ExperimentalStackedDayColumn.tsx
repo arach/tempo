@@ -144,7 +144,7 @@ export function ExperimentalStackedDayColumn({ date, activities, isToday, isEmpt
         ref={setNodeRef}
         className={cn(
           "p-3 space-y-3 min-h-[150px] transition-colors",
-          isOver && "bg-purple-50 dark:bg-purple-900/10",
+          isOver && "bg-purple-50 dark:bg-purple-900/60",
           activities.length === 0 && "flex items-center justify-center"
         )}
       >

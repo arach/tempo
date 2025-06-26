@@ -286,17 +286,19 @@ function ActivityCard({ activity, index, onComplete }: ActivityCardProps) {
   const [justCompleted, setJustCompleted] = useState(false);
 
   const handleComplete = async () => {
-    if (activity.completed) return;
-    
     setIsCompleting(true);
     try {
       await onComplete();
-      setJustCompleted(true);
       
-      // Reset the celebration state after animation
-      setTimeout(() => {
-        setJustCompleted(false);
-      }, 1000);
+      // Only show celebration animation when completing (not uncompleting)
+      if (!activity.completed) {
+        setJustCompleted(true);
+        
+        // Reset the celebration state after animation
+        setTimeout(() => {
+          setJustCompleted(false);
+        }, 1000);
+      }
     } finally {
       setIsCompleting(false);
     }
@@ -316,9 +318,10 @@ function ActivityCard({ activity, index, onComplete }: ActivityCardProps) {
           className={cn(
             "flex-shrink-0 w-6 h-6 rounded-full transition-all duration-200",
             activity.completed 
-              ? "text-green-500 dark:text-green-400" 
+              ? "text-green-500 dark:text-green-400 hover:text-gray-400 dark:hover:text-gray-500" 
               : "text-gray-300 hover:text-purple-500 dark:text-gray-600 dark:hover:text-purple-400"
           )}
+          title={activity.completed ? "Click to mark as incomplete" : "Click to mark as complete"}
         >
           {activity.completed ? (
             <CheckCircle2 className="w-6 h-6" />

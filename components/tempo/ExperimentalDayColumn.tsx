@@ -22,25 +22,25 @@ interface ActivityWithCount extends TempoActivity {
 const ACTIVITY_COLORS = {
   enrichment: { 
     bg: 'bg-blue-500', 
-    light: 'bg-blue-50 dark:bg-blue-900/20', 
+    light: 'bg-blue-50 dark:bg-blue-900/70', 
     border: 'border-blue-200 dark:border-blue-800/60', 
     text: 'text-blue-700 dark:text-blue-300' 
   },
   connection: { 
     bg: 'bg-pink-500', 
-    light: 'bg-pink-50 dark:bg-pink-900/20', 
+    light: 'bg-pink-50 dark:bg-pink-900/70', 
     border: 'border-pink-200 dark:border-pink-800/60', 
     text: 'text-pink-700 dark:text-pink-300' 
   },
   growth: { 
     bg: 'bg-green-500', 
-    light: 'bg-green-50 dark:bg-green-900/20', 
+    light: 'bg-green-50 dark:bg-green-900/70', 
     border: 'border-green-200 dark:border-green-800/60', 
     text: 'text-green-700 dark:text-green-300' 
   },
   creative: { 
     bg: 'bg-purple-500', 
-    light: 'bg-purple-50 dark:bg-purple-900/20', 
+    light: 'bg-purple-50 dark:bg-purple-900/70', 
     border: 'border-purple-200 dark:border-purple-800/60', 
     text: 'text-purple-700 dark:text-purple-300' 
   }
@@ -173,7 +173,7 @@ export function ExperimentalDayColumn({ date, activities, isToday, isEmpty }: Ex
         ref={setNodeRef}
         className={cn(
           "flex-1 p-3 transition-colors min-h-[200px]",
-          isOver && "bg-blue-50/50 dark:bg-blue-950/20",
+          isOver && "bg-blue-50/50 dark:bg-blue-950/60",
           isEmpty && "flex items-center justify-center"
         )}
       >
