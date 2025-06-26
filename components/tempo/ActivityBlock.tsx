@@ -17,17 +17,17 @@ const iconMap = {
 };
 
 const colorMap = {
-  enrichment: 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-100 dark:border-blue-300 dark:text-blue-800',
-  connection: 'bg-pink-100 border-pink-300 text-pink-800 dark:bg-pink-100 dark:border-pink-300 dark:text-pink-800',
-  growth: 'bg-green-100 border-green-300 text-green-800 dark:bg-green-100 dark:border-green-300 dark:text-green-800',
-  creative: 'bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-100 dark:border-purple-300 dark:text-purple-800',
+  enrichment: 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-100',
+  connection: 'bg-pink-100 border-pink-300 text-pink-800 dark:bg-pink-900 dark:border-pink-600 dark:text-pink-100',
+  growth: 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-600 dark:text-green-100',
+  creative: 'bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-900 dark:border-purple-600 dark:text-purple-100',
 };
 
 const completedColorMap = {
-  enrichment: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
-  connection: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
-  growth: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
-  creative: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-900/80 dark:border-green-600 dark:text-green-100',
+  enrichment: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  connection: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  growth: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  creative: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
 };
 
 interface ActivityBlockProps {
