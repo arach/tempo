@@ -1,19 +1,30 @@
 # Tempo
 
-A mindful weekly planner that helps you schedule meaningful activities without the pressure of exact times.
+## Life enrichment without time pressure
 
-## Overview
+Break free from rigid time grids. Stack meaningful activities naturally, focus on what enriches your life, and create days that truly matter.
 
-Tempo is a drag-and-drop weekly calendar designed for people who want to plan their week with intention but without rigid time constraints. Instead of scheduling activities at specific times, you simply place them on the days you'd like to do them.
+## See Tempo in action
 
-## Features
+Activities flow naturally in vertical stacks. No time constraints, just meaningful moments arranged by what matters most.
 
-- **Pressure-free planning**: Add activities to days without specifying exact times
-- **Meaningful categorization**: Organize activities by type (Enrichment, Connection, Growth, Creative)
-- **Drag and drop**: Easily move activities between days
-- **Clean, modern UI**: Inspired by VSCode's design philosophy - functional yet refined
-- **Dark mode support**: Seamless theme switching for comfortable use any time
-- **Responsive design**: Works beautifully on desktop and tablet devices
+**No time slots.** Activities flow naturally, stacked by importance rather than rigid schedules.
+
+## A different approach to planning
+
+Built from the belief that life is about enrichment, not efficiency.
+
+## Key Features
+
+- **Time-free planning**: Stack activities by importance, not rigid schedules
+- **Life enrichment focus**: Four meaningful categories - Enrichment, Connection, Growth, Creative
+- **Intuitive drag & drop**: Effortlessly move activities between days
+- **Activity completion tracking**: Mark activities as done with visual progress
+- **Streak visualization**: See your consistency patterns over time
+- **Focus mode**: Distraction-free daily view for getting things done
+- **Multiple calendar views**: Default, Groups, Stacks, and Bubbles for different perspectives
+- **Day templates**: Save and reuse weekly patterns
+- **Dark mode**: Beautiful interface that works day and night
 
 ## Tech Stack
 
@@ -21,8 +32,9 @@ Tempo is a drag-and-drop weekly calendar designed for people who want to plan th
 - **TypeScript** - Type-safe development
 - **Tailwind CSS v4** - Utility-first styling
 - **@dnd-kit** - Accessible drag and drop
+- **SQLite + Drizzle ORM** - Local database with type-safe queries
+- **date-fns** - Modern date utilities
 - **Lucide Icons** - Beautiful, consistent iconography
-- **Local Storage** - Simple, privacy-focused data persistence
 
 ## Getting Started
 
@@ -58,20 +70,31 @@ pnpm start
 
 ```
 tempo/
-├── app/                    # Next.js app directory
-│   ├── globals.css        # Global styles and design tokens
-│   └── tempo/             # Tempo app page
-├── components/
-│   └── tempo/             # Tempo-specific components
-│       ├── TempoCalendar.tsx    # Main calendar container
-│       ├── DayColumn.tsx        # Individual day column
-│       ├── ActivityBlock.tsx    # Draggable activity card
-│       └── ActivityEditor.tsx   # Activity creation/editing modal
+├── app/                          # Next.js app directory
+│   ├── tempo/                    # Main app routes
+│   │   ├── page.tsx             # Weekly calendar view
+│   │   ├── day/[date]/          # Daily views
+│   │   │   ├── page.tsx         # Day editor
+│   │   │   └── focus/page.tsx   # Focus mode
+│   │   └── streaks/             # Activity tracking
+│   │       ├── page.tsx         # All streaks overview
+│   │       └── [activity]/page.tsx # Individual activity streaks
+├── components/tempo/             # Core components
+│   ├── TempoCalendar.tsx        # Main calendar container
+│   ├── ActivityBlock.tsx        # Draggable activity cards
+│   ├── DayColumn.tsx            # Day view components
+│   ├── Experimental*.tsx        # Alternative calendar views
+│   └── ActivityEditor.tsx       # Activity creation modal
 ├── hooks/
-│   └── useTempoStorage.ts # Local storage persistence
-└── lib/
-    ├── types.ts           # TypeScript type definitions
-    └── utils.ts           # Utility functions
+│   ├── useTempoStorageAPI.ts    # Database operations
+│   └── useDayTemplatesDB.ts     # Template management
+├── lib/
+│   ├── db/                      # Database layer
+│   │   ├── schema.ts           # SQLite schema definitions
+│   │   └── services.ts         # Database services
+│   ├── types.ts                # TypeScript definitions
+│   └── utils/                  # Utility functions
+└── mcp-server/                 # Model Context Protocol server
 ```
 
 ## Design Philosophy
