@@ -40,10 +40,10 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
   return (
     <div 
       className={cn(
-        "bg-gray-50 dark:bg-gray-800/50 h-full transition-all relative overflow-hidden",
+        "bg-gray-50 dark:bg-gray-800 h-full transition-all relative overflow-visible",
         "border-r border-gray-200 dark:border-gray-700 last:border-r-0",
-        day.isToday && "bg-blue-50 dark:bg-blue-900/20",
-        isOver && "bg-blue-100/50 dark:bg-blue-500/10 ring-2 ring-inset ring-blue-500/20"
+        day.isToday && "bg-blue-50 dark:bg-blue-900/60",
+        isOver && "bg-blue-100/50 dark:bg-blue-500/30 ring-2 ring-inset ring-blue-500/20"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -99,7 +99,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
       </div>
       
       <div ref={setNodeRef} className={cn(
-        "px-2 py-3 min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px] transition-all relative",
+        "px-3 py-4 min-h-[200px] sm:min-h-[250px] md:min-h-[300px] lg:min-h-[350px] transition-all relative",
         isOver && "bg-transparent"
       )}>
         <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>

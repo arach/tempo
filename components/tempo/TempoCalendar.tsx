@@ -383,7 +383,7 @@ export function TempoCalendar() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md">
-          <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-4 rounded-lg mb-4">
+          <div className="bg-red-100 dark:bg-red-900/80 text-red-700 dark:text-red-100 p-4 rounded-lg mb-4">
             <p className="font-medium">Unable to load activities</p>
             <p className="text-sm mt-1">{error}</p>
           </div>

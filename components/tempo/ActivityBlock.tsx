@@ -68,7 +68,7 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
       <div 
         className={cn(
           'group relative px-3 sm:px-4 py-3 sm:py-3.5 rounded border transition-all duration-200 hover:shadow-sm',
-          !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.002] hover:-translate-y-0.5',
+          !disableSorting && 'cursor-grab active:cursor-grabbing',
           activity.completed ? completedColorMap[activity.type] : colorMap[activity.type],
           isDragging && 'opacity-50',
           activity.completed && 'ring-1 ring-green-300 dark:ring-green-600 shadow-sm'
