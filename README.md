@@ -8,6 +8,8 @@ Break free from rigid time grids. Stack meaningful activities naturally, focus o
 
 Activities flow naturally in vertical stacks. No time constraints, just meaningful moments arranged by what matters most.
 
+![Tempo Calendar Preview](./assets/tempo-calendar-preview.png)
+
 **No time slots.** Activities flow naturally, stacked by importance rather than rigid schedules.
 
 ## A different approach to planning
