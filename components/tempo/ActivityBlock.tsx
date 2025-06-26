@@ -24,10 +24,10 @@ const colorMap = {
 };
 
 const completedColorMap = {
-  enrichment: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
-  connection: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
-  growth: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
-  creative: 'bg-green-50 border-green-400 text-green-800 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  enrichment: 'bg-green-100 border-green-500 text-green-900 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  connection: 'bg-green-100 border-green-500 text-green-900 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  growth: 'bg-green-100 border-green-500 text-green-900 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
+  creative: 'bg-green-100 border-green-500 text-green-900 dark:bg-green-800 dark:border-green-500 dark:text-green-100',
 };
 
 interface ActivityBlockProps {

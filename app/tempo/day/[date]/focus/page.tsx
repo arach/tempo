@@ -308,7 +308,7 @@ function ActivityCard({ activity, index, onComplete }: ActivityCardProps) {
     <div className={cn(
       "group bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200",
       activity.completed && "opacity-60",
-      justCompleted && "animate-pulse bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700"
+      justCompleted && "animate-pulse bg-green-100 dark:bg-green-800 border-green-400 dark:border-green-600"
     )}>
       <div className="flex items-center gap-4 p-4">
         {/* Completion Button */}
