@@ -42,7 +42,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
       className={cn(
         "bg-gray-50 dark:bg-gray-800 h-full transition-all relative overflow-visible",
         "border-r border-gray-200 dark:border-gray-700 last:border-r-0",
-        day.isToday && "bg-blue-50 dark:bg-blue-900",
+        day.isToday && "bg-blue-50 dark:bg-blue-900/10",
         isOver && "bg-blue-100/50 dark:bg-blue-500/30 ring-2 ring-inset ring-blue-500/20"
       )}
       onMouseEnter={() => setIsHovered(true)}
