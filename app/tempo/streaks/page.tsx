@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, Filter, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { cn } from '@/lib/utils';
+import { slugify } from '@/lib/utils/slugify';
 import type { TempoActivity } from '@/lib/types';
 
 const ACTIVITY_TYPE_COLORS = {
@@ -92,6 +93,65 @@ export default function StreaksPage() {
     
     return maxStreak;
   }, [calendarData]);
+
+  // Get popular activities with their completion counts
+  const popularActivities = useMemo(() => {
+    const activityStats: Record<string, { 
+      title: string; 
+      type: string; 
+      completedCount: number; 
+      totalCount: number;
+      currentStreak: number;
+    }> = {};
+
+    // Collect all activities and their stats
+    Object.values(activities).forEach(dayActivities => {
+      dayActivities.forEach(activity => {
+        const key = activity.title.toLowerCase();
+        if (!activityStats[key]) {
+          activityStats[key] = {
+            title: activity.title,
+            type: activity.type,
+            completedCount: 0,
+            totalCount: 0,
+            currentStreak: 0
+          };
+        }
+        activityStats[key].totalCount++;
+        if (activity.completed) {
+          activityStats[key].completedCount++;
+        }
+      });
+    });
+
+    // Calculate current streaks for each activity
+    Object.keys(activityStats).forEach(key => {
+      const activity = activityStats[key];
+      let streak = 0;
+      
+      // Check recent days for streak
+      for (let i = calendarData.length - 1; i >= 0; i--) {
+        const day = calendarData[i];
+        const hasCompletedActivity = day.activities.some(a => 
+          a.title.toLowerCase() === key && a.completed
+        );
+        
+        if (hasCompletedActivity) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+      
+      activity.currentStreak = streak;
+    });
+
+    // Return top activities by completion count, minimum 2 occurrences
+    return Object.values(activityStats)
+      .filter(activity => activity.totalCount >= 2)
+      .sort((a, b) => b.completedCount - a.completedCount)
+      .slice(0, 8);
+  }, [activities, calendarData]);
 
   // Get intensity color based on completion rate
   const getIntensityColor = (completionRate: number, hasActivities: boolean) => {
@@ -245,6 +305,54 @@ export default function StreaksPage() {
             ))}
           </div>
         </div>
+
+        {/* Popular Activities */}
+        {popularActivities.length > 0 && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Your Activities
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {popularActivities.map((activity) => (
+                <button
+                  key={activity.title}
+                  onClick={() => router.push(`/tempo/streaks/${slugify(activity.title)}`)}
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900/80 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-3 h-3 rounded-full",
+                      activity.type === 'enrichment' && "bg-blue-500",
+                      activity.type === 'connection' && "bg-pink-500", 
+                      activity.type === 'growth' && "bg-green-500",
+                      activity.type === 'creative' && "bg-purple-500"
+                    )} />
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white text-sm">
+                        {activity.title}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {activity.completedCount}/{activity.totalCount} completed
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {activity.currentStreak > 0 ? (
+                      <div className="flex items-center gap-1 text-orange-500">
+                        <span className="text-sm font-medium">{activity.currentStreak}</span>
+                        <span className="text-xs">🔥</span>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-400">
+                        No streak
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Calendar Heatmap */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">

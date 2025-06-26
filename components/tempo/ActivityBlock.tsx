@@ -3,8 +3,10 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Book, Heart, Sprout, Palette, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
+import { Book, Heart, Sprout, Palette, Edit2, Trash2, CheckCircle2, TrendingUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { slugify } from '@/lib/utils/slugify';
 import type { TempoActivity } from '@/lib/types';
 
 const iconMap = {
@@ -38,6 +40,7 @@ interface ActivityBlockProps {
 }
 
 export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
+  const router = useRouter();
   const sortable = useSortable({ 
     id: date === 'template' ? activity.id : `${date}:${activity.id}`,
     disabled: isDragOverlay || disableSorting
@@ -64,8 +67,8 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
     <div ref={disableSorting ? undefined : setNodeRef} style={style} {...(disableSorting ? {} : attributes)}>
       <div 
         className={cn(
-          'group relative px-3 sm:px-4 py-3 sm:py-3.5 rounded border transition-all hover:shadow-sm',
-          !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.005] hover:-translate-y-px',
+          'group relative px-3 sm:px-4 py-3 sm:py-3.5 rounded border transition-all duration-200 hover:shadow-sm',
+          !disableSorting && 'cursor-grab active:cursor-grabbing hover:scale-[1.002] hover:-translate-y-0.5',
           activity.completed ? completedColorMap[activity.type] : colorMap[activity.type],
           isDragging && 'opacity-50',
           activity.completed && 'ring-1 ring-green-300 dark:ring-green-600 shadow-sm'
@@ -74,7 +77,11 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
       >
         {/* Action buttons - visible on mobile, hover on desktop */}
         <div 
-          className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex gap-0.5 sm:gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+          className={cn(
+            "absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex gap-0.5 sm:gap-1 transition-opacity duration-200",
+            "opacity-100 sm:opacity-0 group-hover:opacity-100",
+            "sm:pointer-events-none group-hover:pointer-events-auto"
+          )}
           onClick={(e) => e.stopPropagation()}
         >
           <Button
@@ -88,6 +95,19 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
             }}
           >
             <Edit2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 hover:text-purple-500 rounded"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              router.push(`/tempo/streaks/${slugify(activity.title)}`);
+            }}
+            title="View activity streak"
+          >
+            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Button>
           <Button
             variant="ghost"
