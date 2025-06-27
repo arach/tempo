@@ -22,29 +22,32 @@ interface ActivityWithCount extends TempoActivity {
 const ACTIVITY_COLORS = {
   enrichment: { 
     bg: 'bg-blue-500', 
-    light: 'bg-blue-50 dark:bg-blue-900/70', 
+    light: 'bg-blue-50 dark:bg-blue-900/10', 
     border: 'border-blue-200 dark:border-blue-800/60', 
     text: 'text-blue-700 dark:text-blue-300' 
   },
   connection: { 
     bg: 'bg-pink-500', 
-    light: 'bg-pink-50 dark:bg-pink-900/70', 
+    light: 'bg-pink-50 dark:bg-pink-900/10', 
     border: 'border-pink-200 dark:border-pink-800/60', 
     text: 'text-pink-700 dark:text-pink-300' 
   },
   growth: { 
     bg: 'bg-green-500', 
-    light: 'bg-green-50 dark:bg-green-900/70', 
+    light: 'bg-green-50 dark:bg-green-900/10', 
     border: 'border-green-200 dark:border-green-800/60', 
     text: 'text-green-700 dark:text-green-300' 
   },
   creative: { 
     bg: 'bg-purple-500', 
-    light: 'bg-purple-50 dark:bg-purple-900/70', 
+    light: 'bg-purple-50 dark:bg-purple-900/10', 
     border: 'border-purple-200 dark:border-purple-800/60', 
     text: 'text-purple-700 dark:text-purple-300' 
   }
 }
+
+// Consistent group ordering across all days
+const GROUP_ORDER = ['enrichment', 'creative', 'connection', 'growth'] as const
 
 export function ExperimentalDayColumn({ date, activities, isToday, isEmpty }: ExperimentalDayColumnProps) {
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null)
@@ -186,7 +189,8 @@ export function ExperimentalDayColumn({ date, activities, isToday, isEmpty }: Ex
           </div>
         ) : (
           <div className="space-y-3">
-            {Object.entries(groupedActivities).map(([type, typeActivities]) => {
+            {GROUP_ORDER.filter(type => groupedActivities[type]).map((type) => {
+              const typeActivities = groupedActivities[type]
               const colors = ACTIVITY_COLORS[type as keyof typeof ACTIVITY_COLORS]
 
               return (

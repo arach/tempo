@@ -317,7 +317,7 @@ export default function StreaksPage() {
                 <button
                   key={activity.title}
                   onClick={() => router.push(`/tempo/streaks/${slugify(activity.title)}`)}
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900/80 transition-colors text-left"
+                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/30 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn(
@@ -376,7 +376,7 @@ export default function StreaksPage() {
                   <div
                     key={dayData.dateKey}
                     className={cn(
-                      "w-8 h-8 rounded-sm flex items-center justify-center text-xs font-medium transition-all hover:scale-110 cursor-pointer",
+                      "w-10 h-10 rounded-md flex items-center justify-center text-sm font-medium transition-all hover:scale-110 cursor-pointer",
                       getIntensityColor(dayData.completionRate, dayData.totalActivities > 0),
                       isToday(dayData.date) && "ring-2 ring-purple-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-800",
                       dayData.completionRate > 0 ? "text-white" : "text-gray-600 dark:text-gray-400"
@@ -396,11 +396,11 @@ export default function StreaksPage() {
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <span>Less</span>
               <div className="flex gap-1">
-                <div className="w-3 h-3 rounded-sm bg-gray-200 dark:bg-gray-700/60"></div>
-                <div className="w-3 h-3 rounded-sm bg-purple-500/30 dark:bg-purple-500/80"></div>
-                <div className="w-3 h-3 rounded-sm bg-purple-500/50 dark:bg-purple-500/90"></div>
-                <div className="w-3 h-3 rounded-sm bg-purple-500/70 dark:bg-purple-500/95"></div>
-                <div className="w-3 h-3 rounded-sm bg-purple-500 dark:bg-purple-500"></div>
+                <div className="w-3.5 h-3.5 rounded bg-gray-200 dark:bg-gray-700/60"></div>
+                <div className="w-3.5 h-3.5 rounded bg-purple-500/30 dark:bg-purple-500/80"></div>
+                <div className="w-3.5 h-3.5 rounded bg-purple-500/50 dark:bg-purple-500/90"></div>
+                <div className="w-3.5 h-3.5 rounded bg-purple-500/70 dark:bg-purple-500/95"></div>
+                <div className="w-3.5 h-3.5 rounded bg-purple-500 dark:bg-purple-500"></div>
               </div>
               <span>More</span>
             </div>

@@ -310,7 +310,7 @@ export default function ActivityStreakPage() {
                   <div
                     key={dayData.dateKey}
                     className={cn(
-                      "w-8 h-8 rounded-sm flex items-center justify-center text-xs font-medium transition-all hover:scale-110 cursor-pointer",
+                      "w-10 h-10 rounded-md flex items-center justify-center text-sm font-medium transition-all hover:scale-110 cursor-pointer",
                       getIntensityColor(dayData),
                       isToday(dayData.date) && "ring-2 ring-purple-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-800",
                       dayData.isCompleted ? "text-white" : "text-gray-600 dark:text-gray-400"
