@@ -82,7 +82,10 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
             "absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex gap-0.5 sm:gap-1 transition-opacity duration-200",
             "opacity-100 sm:opacity-0 group-hover:opacity-100",
             "sm:pointer-events-none group-hover:pointer-events-auto",
-            "bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-1 shadow-sm"
+            "backdrop-blur-sm rounded-lg p-1 shadow-sm",
+            activity.completed 
+              ? "bg-white/95 dark:bg-gray-900/95" 
+              : "bg-white/80 dark:bg-gray-900/80"
           )}
           onClick={(e) => e.stopPropagation()}
         >
