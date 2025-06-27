@@ -35,11 +35,12 @@ interface ActivityBlockProps {
   date: string;
   onEdit?: (activity: TempoActivity) => void;
   onDelete?: (activityId: string) => void;
+  onToggleCompletion?: (activityId: string, currentCompleted: boolean) => void;
   isDragOverlay?: boolean;
   disableSorting?: boolean;
 }
 
-export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
+export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleCompletion, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
   const router = useRouter();
   const sortable = useSortable({ 
     id: date === 'template' ? activity.id : `${date}:${activity.id}`,
@@ -84,6 +85,29 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, isDragOverlay 
           )}
           onClick={(e) => e.stopPropagation()}
         >
+          {onToggleCompletion && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 rounded",
+                activity.completed 
+                  ? "text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300" 
+                  : "text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onToggleCompletion(activity.id, activity.completed || false);
+              }}
+              title={activity.completed ? "Mark as incomplete" : "Mark as complete"}
+            >
+              <CheckCircle2 className={cn(
+                "h-3 w-3 sm:h-3.5 sm:w-3.5",
+                activity.completed && "fill-current"
+              )} />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

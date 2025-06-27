@@ -152,6 +152,17 @@ export function TempoCalendar() {
     }
   };
 
+  const handleToggleCompletion = async (date: string, activityId: string, currentCompleted: boolean) => {
+    try {
+      await updateActivity(date, activityId, { 
+        completed: !currentCompleted,
+        completedAt: !currentCompleted ? new Date().toISOString() : undefined
+      });
+    } catch (error) {
+      console.error('Failed to toggle completion:', error);
+    }
+  };
+
   const handleSaveActivity = (activityData: Omit<TempoActivity, 'id'>) => {
     if (!selectedDate) return;
     
@@ -493,6 +504,7 @@ export function TempoCalendar() {
                       onAddActivity={handleAddActivity}
                       onEditActivity={handleEditActivity}
                       onDeleteActivity={handleDeleteActivity}
+                      onToggleCompletion={handleToggleCompletion}
                       onApplyTemplate={handleOpenQuickTemplateSelector}
                     />
                   );
