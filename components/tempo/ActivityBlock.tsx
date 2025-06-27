@@ -81,7 +81,8 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           className={cn(
             "absolute top-1.5 sm:top-2 right-1.5 sm:right-2 flex gap-0.5 sm:gap-1 transition-opacity duration-200",
             "opacity-100 sm:opacity-0 group-hover:opacity-100",
-            "sm:pointer-events-none group-hover:pointer-events-auto"
+            "sm:pointer-events-none group-hover:pointer-events-auto",
+            "bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-1 shadow-sm"
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -90,7 +91,7 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
               variant="ghost"
               size="icon"
               className={cn(
-                "h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 rounded",
+                "h-6 w-6 sm:h-6 sm:w-6 hover:bg-gray-100 dark:hover:bg-gray-800 rounded",
                 activity.completed 
                   ? "text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300" 
                   : "text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400"
@@ -111,7 +112,7 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+            className="h-6 w-6 sm:h-6 sm:w-6 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -123,7 +124,7 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 hover:text-purple-500 rounded"
+            className="h-6 w-6 sm:h-6 sm:w-6 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-purple-500 rounded"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -136,7 +137,7 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 sm:h-7 sm:w-7 hover:bg-black/10 dark:hover:bg-white/10 hover:text-red-500 rounded"
+            className="h-6 w-6 sm:h-6 sm:w-6 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-500 rounded"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
