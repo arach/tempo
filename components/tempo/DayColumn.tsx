@@ -22,10 +22,11 @@ interface DayColumnProps {
   onEditActivity: (activity: TempoActivity) => void;
   onDeleteActivity: (date: string, activityId: string) => void;
   onToggleCompletion: (date: string, activityId: string, currentCompleted: boolean) => void;
+  onRecap: (activity: TempoActivity) => void;
   onApplyTemplate: (date: string) => void;
 }
 
-export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDeleteActivity, onToggleCompletion, onApplyTemplate }: DayColumnProps) {
+export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDeleteActivity, onToggleCompletion, onRecap, onApplyTemplate }: DayColumnProps) {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const { setNodeRef, isOver } = useDroppable({
@@ -113,6 +114,7 @@ export function DayColumn({ day, activities, onAddActivity, onEditActivity, onDe
                 onEdit={onEditActivity}
                 onDelete={(activityId) => onDeleteActivity(day.date, activityId)}
                 onToggleCompletion={(activityId, currentCompleted) => onToggleCompletion(day.date, activityId, currentCompleted)}
+                onRecap={onRecap}
               />
             ))}
             

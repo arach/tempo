@@ -21,12 +21,35 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
+
+  // Expand activities with multiple instances for display
+  const expandedActivities = activities.flatMap((activity) => {
+    if (!activity.instances || activity.instances === 1) {
+      return [activity];
+    }
+    
+    // Create linked instances
+    return Array.from({ length: activity.instances }, (_, index) => ({
+      ...activity,
+      id: `${activity.id}-instance-${index}`,
+      title: `${activity.title} (${index + 1})`,
+      parentId: activity.id, // Link instances together
+      instanceIndex: index,
+    }));
+  });
   const [isNamingModalOpen, setIsNamingModalOpen] = useState(false);
   const [tempName, setTempName] = useState('');
   const [tempDescription, setTempDescription] = useState('');
 
   const handleReorderActivities = (reorderedActivities: TempoActivity[]) => {
-    setActivities(reorderedActivities);
+    // Filter out expanded instances and maintain only parent activities
+    const parentActivities = reorderedActivities.filter(activity => {
+      // Keep activities that don't have a parentId (they are original activities)
+      return !('parentId' in activity && activity.parentId);
+    });
+    
+    // Update the activities state with the reordered parent activities
+    setActivities(parentActivities);
   };
 
   const handleAddActivity = () => {
@@ -35,13 +58,28 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
   };
 
   const handleEditActivity = (activity: TempoActivity) => {
-    setEditingActivity(activity);
-    setIsEditorOpen(true);
+    // If editing an expanded instance, edit the parent activity
+    if ('parentId' in activity && activity.parentId) {
+      const parentActivity = activities.find(a => a.id === activity.parentId);
+      if (parentActivity) {
+        setEditingActivity(parentActivity);
+        setIsEditorOpen(true);
+      }
+    } else {
+      setEditingActivity(activity);
+      setIsEditorOpen(true);
+    }
   };
 
   const handleDeleteActivity = (activityId: string) => {
     if (confirm('Remove this activity from the template?')) {
-      setActivities(prev => prev.filter(a => a.id !== activityId));
+      // If deleting an expanded instance, delete the parent activity
+      const expandedActivity = expandedActivities.find(a => a.id === activityId);
+      if (expandedActivity && 'parentId' in expandedActivity && expandedActivity.parentId) {
+        setActivities(prev => prev.filter(a => a.id !== expandedActivity.parentId));
+      } else {
+        setActivities(prev => prev.filter(a => a.id !== activityId));
+      }
     }
   };
 
@@ -240,7 +278,7 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
             ) : (
               <div className="space-y-6">
                 <SortableActivityList
-                  activities={activities}
+                  activities={expandedActivities}
                   onEditActivity={handleEditActivity}
                   onDeleteActivity={handleDeleteActivity}
                   onReorderActivities={handleReorderActivities}

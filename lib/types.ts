@@ -9,6 +9,14 @@ export interface TempoActivity {
   color?: string;
   completed?: boolean; // Completion status
   completedAt?: string; // ISO timestamp when completed
+  instances?: number; // Number of times this activity should be created (for templates)
+  parentId?: string; // For linked instances - references the parent activity
+  instanceIndex?: number; // Which instance number this is (0-based)
+  recap?: {
+    notes?: string;
+    media?: string[]; // URLs or base64 encoded images
+    createdAt: string;
+  };
   metadata?: Record<string, any>;
 }
 

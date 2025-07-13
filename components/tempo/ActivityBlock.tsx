@@ -3,7 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Book, Heart, Sprout, Palette, Edit2, Trash2, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Book, Heart, Sprout, Palette, Edit2, Trash2, CheckCircle2, TrendingUp, MessageCircle, Link2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { slugify } from '@/lib/utils/slugify';
@@ -36,11 +36,12 @@ interface ActivityBlockProps {
   onEdit?: (activity: TempoActivity) => void;
   onDelete?: (activityId: string) => void;
   onToggleCompletion?: (activityId: string, currentCompleted: boolean) => void;
+  onRecap?: (activity: TempoActivity) => void;
   isDragOverlay?: boolean;
   disableSorting?: boolean;
 }
 
-export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleCompletion, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
+export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleCompletion, onRecap, isDragOverlay = false, disableSorting = false }: ActivityBlockProps) {
   const router = useRouter();
   const sortable = useSortable({ 
     id: date === 'template' ? activity.id : `${date}:${activity.id}`,
@@ -112,6 +113,27 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
               )} />
             </Button>
           )}
+          {activity.completed && onRecap && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-6 w-6 sm:h-6 sm:w-6 hover:bg-gray-100 dark:hover:bg-gray-800 rounded",
+                activity.recap ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onRecap(activity);
+              }}
+              title={activity.recap ? "Edit recap" : "Add recap"}
+            >
+              <MessageCircle className={cn(
+                "h-3 w-3 sm:h-3.5 sm:w-3.5",
+                activity.recap && "fill-current"
+              )} />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -156,6 +178,15 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           <div className="absolute top-1 left-1">
             <div className="bg-green-500 rounded-full p-0.5">
               <CheckCircle2 className="w-3 h-3 text-white" />
+            </div>
+          </div>
+        )}
+
+        {/* Linked Instance Indicator */}
+        {'parentId' in activity && activity.parentId && (
+          <div className="absolute bottom-1 left-1">
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+              <Link2 className="w-2.5 h-2.5 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
         )}

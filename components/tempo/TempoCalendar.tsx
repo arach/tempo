@@ -24,12 +24,14 @@ import { ActivityBank } from './ActivityBank';
 import { DayTemplateLibrary } from './DayTemplateLibrary';
 import { QuickTemplateSelector } from './QuickTemplateSelector';
 import { ActivityBlock } from './ActivityBlock';
-import { Plus, Sparkles, X, TrendingUp } from 'lucide-react';
+import { ActivityRecap } from './ActivityRecap';
+import { DayTemplatesSection } from './DayTemplatesSection';
+import { Plus, X, TrendingUp, Library } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTempoStorageAPI } from '@/hooks/useTempoStorageAPI';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 // Note: Mutation tracking moved to server-side API calls to avoid client-side database access
-import type { TempoActivity } from '@/lib/types';
+import type { TempoActivity, DayTemplate } from '@/lib/types';
 
 export function TempoCalendar() {
   const router = useRouter();
@@ -43,6 +45,7 @@ export function TempoCalendar() {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingActivity, setEditingActivity] = useState<TempoActivity | null>(null);
+  const [recapActivity, setRecapActivity] = useState<TempoActivity | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeActivity, setActiveActivity] = useState<TempoActivity | null>(null);
   const [activeDate, setActiveDate] = useState<string | null>(null);
@@ -163,6 +166,33 @@ export function TempoCalendar() {
     }
   };
 
+  const handleRecap = (activity: TempoActivity) => {
+    setRecapActivity(activity);
+  };
+
+  const handleSaveRecap = async (recap: { notes: string; media?: string[] }) => {
+    if (!recapActivity) return;
+    
+    // Find the date for this activity
+    const activityDate = Object.entries(activities).find(([date, dayActivities]) => 
+      dayActivities.some(a => a.id === recapActivity.id)
+    )?.[0];
+    
+    if (!activityDate) return;
+    
+    try {
+      await updateActivity(activityDate, recapActivity.id, {
+        recap: {
+          ...recap,
+          createdAt: new Date().toISOString()
+        }
+      });
+      setRecapActivity(null);
+    } catch (error) {
+      console.error('Failed to save recap:', error);
+    }
+  };
+
   const handleSaveActivity = (activityData: Omit<TempoActivity, 'id'>) => {
     if (!selectedDate) return;
     
@@ -192,7 +222,7 @@ export function TempoCalendar() {
     addActivity(targetDate, newActivity);
   };
 
-  const handleApplyTemplate = async (template: any, date: string) => {
+  const handleApplyTemplate = async (template: DayTemplate, date: string) => {
     try {
       const appliedActivities = await applyTemplateToDate(template.id, date, false);
       
@@ -418,6 +448,13 @@ export function TempoCalendar() {
         </h3>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setIsTemplateLibraryOpen(true)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
+          >
+            <Library className="h-4 w-4" />
+            Templates
+          </button>
+          <button
             onClick={() => router.push('/tempo/streaks')}
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
           >
@@ -505,6 +542,7 @@ export function TempoCalendar() {
                       onEditActivity={handleEditActivity}
                       onDeleteActivity={handleDeleteActivity}
                       onToggleCompletion={handleToggleCompletion}
+                      onRecap={handleRecap}
                       onApplyTemplate={handleOpenQuickTemplateSelector}
                     />
                   );
@@ -528,6 +566,24 @@ export function TempoCalendar() {
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Day Templates Section */}
+      <DayTemplatesSection 
+        onApplyTemplate={handleApplyTemplate}
+        onOpenLibrary={() => setIsTemplateLibraryOpen(true)}
+      />
+
+      {/* Floating Template Button - smaller and more subtle now that we have the section */}
+      <button
+        onClick={() => setIsTemplateLibraryOpen(true)}
+        className="fixed bottom-6 right-6 w-12 h-12 bg-gray-200 dark:bg-gray-800 hover:bg-purple-600 dark:hover:bg-purple-600 text-gray-600 dark:text-gray-400 hover:text-white rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all flex items-center justify-center group"
+        title="Day Templates Library"
+      >
+        <Library className="h-5 w-5" />
+        <span className="absolute right-full mr-3 px-3 py-1.5 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          All Templates
+        </span>
+      </button>
       
       <ActivityEditor
         isOpen={isEditorOpen}
@@ -539,6 +595,15 @@ export function TempoCalendar() {
         onSave={handleSaveActivity}
         editingActivity={editingActivity || undefined}
       />
+      
+      {recapActivity && (
+        <ActivityRecap
+          activity={recapActivity}
+          isOpen={true}
+          onClose={() => setRecapActivity(null)}
+          onSave={handleSaveRecap}
+        />
+      )}
       
       <ActivityBank
         isOpen={isBankOpen}

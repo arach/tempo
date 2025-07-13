@@ -21,6 +21,7 @@ export function ActivityEditor({
   const [description, setDescription] = useState(editingActivity?.description || '');
   const [type, setType] = useState<ActivityType>(editingActivity?.type || 'enrichment');
   const [duration, setDuration] = useState(editingActivity?.duration || '30 min');
+  const [instances, setInstances] = useState(editingActivity?.instances || 1);
 
   useEffect(() => {
     if (editingActivity) {
@@ -28,6 +29,7 @@ export function ActivityEditor({
       setDescription(editingActivity.description || '');
       setType(editingActivity.type);
       setDuration(editingActivity.duration || '30 min');
+      setInstances(editingActivity.instances || 1);
     }
   }, [editingActivity]);
 
@@ -45,7 +47,8 @@ export function ActivityEditor({
       title: title.trim(),
       description: description.trim() || undefined,
       type,
-      duration
+      duration,
+      instances: instances
     });
     
     // Reset form
@@ -53,6 +56,7 @@ export function ActivityEditor({
     setDescription('');
     setType('enrichment');
     setDuration('30 min');
+    setInstances(1);
     onClose();
   };
 
@@ -61,6 +65,7 @@ export function ActivityEditor({
     setDescription('');
     setType('enrichment');
     setDuration('30 min');
+    setInstances(1);
     onClose();
   };
 
@@ -192,6 +197,43 @@ export function ActivityEditor({
               <option value="2 hours">2 hours</option>
               <option value="2+ hours">2+ hours</option>
             </select>
+          </div>
+
+          {/* Instance Count (for templates) */}
+          <div>
+            <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-[0.06em]">
+              Instances <span className="text-gray-400 normal-case">(for templates)</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setInstances(Math.max(1, instances - 1))}
+                className="h-9 w-9 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-gray-100 dark:hover:bg-gray-800/50 flex items-center justify-center transition-all"
+              >
+                <span className="text-gray-600 dark:text-gray-400 text-[14px] font-medium">−</span>
+              </button>
+              <input
+                type="number"
+                value={instances}
+                onChange={(e) => setInstances(Math.max(1, parseInt(e.target.value) || 1))}
+                min="1"
+                max="10"
+                className="w-16 px-3 py-2 text-[14px] text-center border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent hover:border-gray-300 dark:hover:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setInstances(Math.min(10, instances + 1))}
+                className="h-9 w-9 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-gray-50/50 dark:bg-gray-800/30 hover:bg-gray-100 dark:hover:bg-gray-800/50 flex items-center justify-center transition-all"
+              >
+                <span className="text-gray-600 dark:text-gray-400 text-[14px] font-medium">+</span>
+              </button>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 ml-2">
+                {instances > 1 ? `${instances} times` : '1 time'}
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">
+              When applying a template, this activity will be created {instances} time{instances > 1 ? 's' : ''} throughout the day.
+            </p>
           </div>
 
           {/* Example suggestions */}

@@ -493,9 +493,18 @@ export class TemplatesService {
     // Copy template activities to the date
     const copiedActivities: TempoActivity[] = [];
     for (const activity of template.activities) {
-      const { id, ...activityData } = activity;
-      const newActivity = await activitiesService.createActivity(date, activityData);
-      copiedActivities.push(newActivity);
+      const { id, instances = 1, ...activityData } = activity;
+      
+      // Create the specified number of instances
+      for (let i = 0; i < instances; i++) {
+        const instanceData = {
+          ...activityData,
+          // If multiple instances, add instance number to title
+          title: instances > 1 ? `${activityData.title} (${i + 1})` : activityData.title
+        };
+        const newActivity = await activitiesService.createActivity(date, instanceData);
+        copiedActivities.push(newActivity);
+      }
     }
 
     return copiedActivities;
