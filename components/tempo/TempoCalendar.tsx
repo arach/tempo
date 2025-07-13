@@ -193,20 +193,43 @@ export function TempoCalendar() {
     }
   };
 
-  const handleSaveActivity = (activityData: Omit<TempoActivity, 'id'>) => {
+  const handleSaveActivity = async (activityData: Omit<TempoActivity, 'id'>) => {
     if (!selectedDate) return;
     
     if (editingActivity) {
-      // Update existing activity
-      updateActivity(selectedDate, editingActivity.id, activityData);
+      // Just update the existing activity - no instance management
+      await updateActivity(selectedDate, editingActivity.id, activityData);
     } else {
-      // Create new activity
-      const newActivity: TempoActivity = {
-        ...activityData,
-        id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      };
+      // Create new activity with instances
+      const instanceCount = activityData.instances || 1;
       
-      addActivity(selectedDate, newActivity);
+      if (instanceCount === 1) {
+        // Single activity
+        const newActivity: TempoActivity = {
+          ...activityData,
+          id: `activity-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        };
+        await addActivity(selectedDate, newActivity);
+      } else {
+        // Multiple instances - create linked activities
+        let masterId: string | null = null;
+        
+        for (let i = 0; i < instanceCount; i++) {
+          const newActivity: TempoActivity = {
+            ...activityData,
+            id: `activity-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
+            instanceIndex: i,
+            // First one is the master, others reference it
+            ...(i > 0 && masterId ? { parentId: masterId } : {})
+          };
+          
+          if (i === 0) {
+            masterId = newActivity.id;
+          }
+          
+          await addActivity(selectedDate, newActivity);
+        }
+      }
     }
   };
 

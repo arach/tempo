@@ -85,10 +85,10 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
 
   const handleSaveActivity = (activityData: Omit<TempoActivity, 'id'>) => {
     if (editingActivity) {
-      // Update existing activity
+      // Update existing activity - preserve the id and merge the new data
       setActivities(prev => prev.map(a => 
         a.id === editingActivity.id 
-          ? { ...activityData, id: editingActivity.id }
+          ? { ...a, ...activityData }
           : a
       ));
     } else {
@@ -99,6 +99,7 @@ export function DayTemplate({ template, onSave, onCancel }: DayTemplateProps) {
       };
       setActivities(prev => [...prev, newActivity]);
     }
+    
     setIsEditorOpen(false);
     setEditingActivity(null);
   };

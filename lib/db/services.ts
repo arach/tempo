@@ -16,6 +16,7 @@ import type { TempoActivity, DayTemplate as OriginalDayTemplate } from '../types
 
 // Helper function to convert database activity to original type
 function dbActivityToTempo(dbActivity: Activity): TempoActivity {
+  const metadata = dbActivity.metadata as Record<string, any> || {};
   return {
     id: dbActivity.id,
     title: dbActivity.title,
@@ -25,13 +26,25 @@ function dbActivityToTempo(dbActivity: Activity): TempoActivity {
     color: dbActivity.color || undefined,
     completed: dbActivity.completed || false,
     completedAt: dbActivity.completedAt || undefined,
-    metadata: dbActivity.metadata as Record<string, any> || undefined,
+    instances: metadata.instances || undefined,
+    parentId: metadata.parentId || undefined,
+    instanceIndex: metadata.instanceIndex || undefined,
+    recap: metadata.recap || undefined,
+    metadata: metadata,
   };
 }
 
 // Helper function to convert tempo activity to database type
 function tempoActivityToDb(tempoActivity: Omit<TempoActivity, 'id'>, date: string, position: number = 0): Omit<NewActivity, 'id'> {
   const now = new Date().toISOString();
+  const metadata = {
+    ...tempoActivity.metadata,
+    ...(tempoActivity.instances && { instances: tempoActivity.instances }),
+    ...(tempoActivity.parentId && { parentId: tempoActivity.parentId }),
+    ...(tempoActivity.instanceIndex !== undefined && { instanceIndex: tempoActivity.instanceIndex }),
+    ...(tempoActivity.recap && { recap: tempoActivity.recap }),
+  };
+  
   return {
     title: tempoActivity.title,
     type: tempoActivity.type,
@@ -42,7 +55,7 @@ function tempoActivityToDb(tempoActivity: Omit<TempoActivity, 'id'>, date: strin
     position,
     completed: tempoActivity.completed || false,
     completedAt: tempoActivity.completedAt || null,
-    metadata: tempoActivity.metadata || null,
+    metadata: Object.keys(metadata).length > 0 ? metadata : null,
     createdAt: now,
     updatedAt: now,
   };
@@ -50,6 +63,7 @@ function tempoActivityToDb(tempoActivity: Omit<TempoActivity, 'id'>, date: strin
 
 // Helper function to convert template activity to tempo activity
 function templateActivityToTempo(templateActivity: TemplateActivity): TempoActivity {
+  const metadata = templateActivity.metadata as Record<string, any> || {};
   return {
     id: templateActivity.id,
     title: templateActivity.title,
@@ -57,7 +71,8 @@ function templateActivityToTempo(templateActivity: TemplateActivity): TempoActiv
     description: templateActivity.description || undefined,
     duration: templateActivity.duration || undefined,
     color: templateActivity.color || undefined,
-    metadata: templateActivity.metadata as Record<string, any> || undefined,
+    instances: metadata.instances || 1, // Extract instances from metadata
+    metadata: metadata,
   };
 }
 
@@ -151,6 +166,29 @@ export class ActivitiesService {
   async updateActivity(date: string, activityId: string, updates: Partial<Omit<TempoActivity, 'id'>>): Promise<TempoActivity | null> {
     const db = this.getDb();
     
+    // Get current activity to merge metadata
+    const currentActivity = await db
+      .select()
+      .from(activities)
+      .where(and(eq(activities.id, activityId), eq(activities.date, date)))
+      .limit(1);
+    
+    if (!currentActivity[0]) {
+      return null;
+    }
+    
+    const currentMetadata = currentActivity[0].metadata as Record<string, any> || {};
+    
+    // Build metadata with special fields
+    const updatedMetadata = {
+      ...currentMetadata,
+      ...updates.metadata,
+      ...(updates.instances !== undefined && { instances: updates.instances }),
+      ...(updates.parentId !== undefined && { parentId: updates.parentId }),
+      ...(updates.instanceIndex !== undefined && { instanceIndex: updates.instanceIndex }),
+      ...(updates.recap !== undefined && { recap: updates.recap }),
+    };
+    
     const updateData: Partial<Activity> = {
       updatedAt: new Date().toISOString()
     };
@@ -160,7 +198,10 @@ export class ActivitiesService {
     if (updates.description !== undefined) updateData.description = updates.description || null;
     if (updates.duration !== undefined) updateData.duration = updates.duration || null;
     if (updates.color !== undefined) updateData.color = updates.color || null;
-    if (updates.metadata !== undefined) updateData.metadata = updates.metadata || null;
+    if (updates.completed !== undefined) updateData.completed = updates.completed;
+    if (updates.completedAt !== undefined) updateData.completedAt = updates.completedAt || null;
+    
+    updateData.metadata = Object.keys(updatedMetadata).length > 0 ? updatedMetadata : null;
 
     await db
       .update(activities)
@@ -400,7 +441,10 @@ export class TemplatesService {
         duration: activity.duration || null,
         color: activity.color || null,
         position: index,
-        metadata: activity.metadata || null,
+        metadata: {
+          ...activity.metadata,
+          instances: activity.instances || 1
+        },
         createdAt: now,
         updatedAt: now,
       }));
@@ -448,7 +492,10 @@ export class TemplatesService {
           duration: activity.duration || null,
           color: activity.color || null,
           position: index,
-          metadata: activity.metadata || null,
+          metadata: {
+            ...activity.metadata,
+            instances: activity.instances || 1
+          },
           createdAt: now,
           updatedAt: now,
         }));
@@ -499,8 +546,13 @@ export class TemplatesService {
       for (let i = 0; i < instances; i++) {
         const instanceData = {
           ...activityData,
-          // If multiple instances, add instance number to title
-          title: instances > 1 ? `${activityData.title} (${i + 1})` : activityData.title
+          // Store instance metadata instead of modifying title
+          parentId: activity.id,
+          instanceIndex: instances > 1 ? i : undefined,
+          metadata: {
+            ...activityData.metadata,
+            totalInstances: instances
+          }
         };
         const newActivity = await activitiesService.createActivity(date, instanceData);
         copiedActivities.push(newActivity);

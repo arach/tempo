@@ -73,7 +73,9 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           !disableSorting && 'cursor-grab active:cursor-grabbing',
           activity.completed ? completedColorMap[activity.type] : colorMap[activity.type],
           isDragging && 'opacity-50',
-          activity.completed && 'ring-1 ring-green-300 dark:ring-green-600 shadow-sm'
+          activity.completed && 'ring-1 ring-green-300 dark:ring-green-600 shadow-sm',
+          // Add subtle left border for repeated instances
+          'parentId' in activity && activity.parentId && 'border-l-4'
         )}
         {...(disableSorting ? {} : listeners)}
       >
@@ -182,11 +184,17 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           </div>
         )}
 
-        {/* Linked Instance Indicator */}
-        {'parentId' in activity && activity.parentId && (
-          <div className="absolute bottom-1 left-1">
-            <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <Link2 className="w-2.5 h-2.5 text-gray-600 dark:text-gray-400" />
+        {/* Instance Indicator - subtle number badge */}
+        {'parentId' in activity && activity.parentId && 'instanceIndex' in activity && activity.instanceIndex !== undefined && (
+          <div className="absolute -top-2 -left-2">
+            <div className={cn(
+              "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium border-2 border-white dark:border-gray-800",
+              activity.type === 'enrichment' && "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+              activity.type === 'connection' && "bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-300",
+              activity.type === 'growth' && "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300",
+              activity.type === 'creative' && "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300"
+            )}>
+              {activity.instanceIndex + 1}
             </div>
           </div>
         )}

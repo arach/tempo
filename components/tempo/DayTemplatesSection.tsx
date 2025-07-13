@@ -56,9 +56,10 @@ export function DayTemplatesSection({ onApplyTemplate, onOpenLibrary }: DayTempl
             </p>
             <button
               onClick={() => router.push('/tempo/day-template/new')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all hover:shadow-lg hover:scale-105 font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white hover:text-white rounded-lg transition-all hover:shadow-lg hover:scale-105 font-medium"
+              style={{ color: 'white' }}
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5 text-white" />
               Create Your First Template
             </button>
           </div>
@@ -290,14 +291,14 @@ function TemplatePreviewCard({ template, onApply, onClick }: TemplatePreviewCard
               const today = new Date().toISOString().split('T')[0];
               onApply(template, today);
             }}
-            className="flex-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-xs font-medium flex items-center justify-center gap-1.5 group-hover:shadow-md"
+            className="flex-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-xs font-medium flex items-center justify-center gap-1.5 group-hover:shadow-md cursor-pointer"
           >
             <span className="text-xs" style={{ lineHeight: '1' }}>+</span>
             Add
           </button>
           <button
             onClick={onClick}
-            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-xs font-medium"
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-xs font-medium cursor-pointer"
           >
             Edit
           </button>
