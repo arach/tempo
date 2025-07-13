@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Calendar, ChevronRight, Sparkles, Clock, Book, Heart, Sprout, Palette } from 'lucide-react';
+import { Plus, Calendar, ChevronRight, Sparkles, Clock, Book, Heart, Sprout, Palette, PlusCircle } from 'lucide-react';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 import { cn } from '@/lib/utils';
 import type { DayTemplate, TempoActivity } from '@/lib/types';
@@ -238,20 +238,25 @@ function TemplatePreviewCard({ template, onApply, onClick }: TemplatePreviewCard
               <div 
                 key={`${activity.id}-${index}`}
                 className={cn(
-                  "flex items-center gap-2 px-2 py-1 rounded-md transition-all",
+                  "relative flex items-center gap-2 px-2 py-1 rounded-md transition-all",
                   colors.light,
-                  "group-hover:scale-[0.98] hover:scale-100"
+                  "before:absolute before:inset-0 before:rounded-md before:border-2 before:border-transparent",
+                  "hover:before:border-opacity-30 before:transition-all before:duration-200",
+                  activity.type === 'enrichment' && "hover:before:border-blue-400",
+                  activity.type === 'connection' && "hover:before:border-pink-400", 
+                  activity.type === 'growth' && "hover:before:border-green-400",
+                  activity.type === 'creative' && "hover:before:border-purple-400"
                 )}
                 style={{ 
                   transitionDelay: `${index * 30}ms`,
                 }}
               >
-                <span className="text-sm">{activityEmojis[activity.type]}</span>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate flex-1">
+                <span className="text-sm relative z-10">{activityEmojis[activity.type]}</span>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate flex-1 relative z-10">
                   {activity.title}{activity.instanceLabel}
                 </span>
                 {activity.duration && (
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400 relative z-10">
                     {activity.duration}
                   </span>
                 )}
@@ -287,8 +292,8 @@ function TemplatePreviewCard({ template, onApply, onClick }: TemplatePreviewCard
             }}
             className="flex-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-xs font-medium flex items-center justify-center gap-1.5 group-hover:shadow-md"
           >
-            <Calendar className="w-3.5 h-3.5" />
-            Apply Today
+            <span className="text-xs" style={{ lineHeight: '1' }}>+</span>
+            Add
           </button>
           <button
             onClick={onClick}
