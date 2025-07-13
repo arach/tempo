@@ -292,7 +292,8 @@ export default function DayViewPage() {
               </p>
               <Button
                 size="default"
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 dark:from-purple-500 dark:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-white font-medium shadow-lg shadow-purple-600/25 dark:shadow-purple-500/25 transition-all hover:scale-105"
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 dark:from-purple-500 dark:to-purple-600 dark:hover:from-purple-600 dark:hover:to-purple-700 text-white dark:text-white font-medium shadow-lg shadow-purple-600/25 dark:shadow-purple-500/25 transition-all hover:scale-105"
+                style={{ color: 'white' }}
                 onClick={() => {
                   // Navigate to template creation with current activities
                   const templateData = {

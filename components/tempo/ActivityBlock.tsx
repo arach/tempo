@@ -184,20 +184,6 @@ export function ActivityBlock({ activity, date, onEdit, onDelete, onToggleComple
           </div>
         )}
 
-        {/* Instance Indicator - subtle number badge */}
-        {'parentId' in activity && activity.parentId && 'instanceIndex' in activity && activity.instanceIndex !== undefined && (
-          <div className="absolute -top-2 -left-2">
-            <div className={cn(
-              "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-medium border-2 border-white dark:border-gray-800",
-              activity.type === 'enrichment' && "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
-              activity.type === 'connection' && "bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-300",
-              activity.type === 'growth' && "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300",
-              activity.type === 'creative' && "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300"
-            )}>
-              {activity.instanceIndex + 1}
-            </div>
-          </div>
-        )}
 
         <div className="flex items-start gap-3">
           <Icon className="w-3.5 h-3.5 mt-1 flex-shrink-0 opacity-60" />
