@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Calendar, ChevronRight, Sparkles, Clock, Book, Heart, Sprout, Palette, PlusCircle } from 'lucide-react';
+import { Plus, Calendar, ChevronRight, Sparkles, Clock, Book, Heart, Sprout, Palette, PlusCircle, Edit2 } from 'lucide-react';
 import { useDayTemplatesDB } from '@/hooks/useDayTemplatesDB';
 import { cn } from '@/lib/utils';
 import type { DayTemplate, TempoActivity } from '@/lib/types';
@@ -211,9 +211,21 @@ function TemplatePreviewCard({ template, onApply, onClick }: TemplatePreviewCard
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-              {template.name}
-            </h4>
+            <div className="flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                {template.name}
+              </h4>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick();
+                }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                title="Edit template"
+              >
+                <Edit2 className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -283,24 +295,18 @@ function TemplatePreviewCard({ template, onApply, onClick }: TemplatePreviewCard
           </p>
         )}
 
-        {/* Action buttons */}
-        <div className="flex gap-2">
+        {/* Action button */}
+        <div className="flex justify-end">
           <button
             onClick={(e) => {
               e.stopPropagation();
               const today = new Date().toISOString().split('T')[0];
               onApply(template, today);
             }}
-            className="flex-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-xs font-medium flex items-center justify-center gap-1.5 group-hover:shadow-md cursor-pointer"
+            className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 text-purple-700 dark:text-purple-300 rounded-full transition-all text-[11px] font-medium flex items-center gap-1 hover:scale-105 hover:shadow-sm"
           >
-            <span className="text-xs" style={{ lineHeight: '1' }}>+</span>
-            Add
-          </button>
-          <button
-            onClick={onClick}
-            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-xs font-medium cursor-pointer"
-          >
-            Edit
+            <Plus className="w-3 h-3" />
+            <span>Add today</span>
           </button>
         </div>
       </div>
